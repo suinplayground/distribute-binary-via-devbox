@@ -22,8 +22,6 @@ jobs:
         with:
           enable-cache: "true"
       
-      - uses: DeterminateSystems/nix-installer-action@v14
-
       # 1. Create draft release first (no git tag yet)
       - name: Create draft release
         run: |

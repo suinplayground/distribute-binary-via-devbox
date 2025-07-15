@@ -73,8 +73,7 @@ If you need to release manually:
 
 6. **Update and publish the release**:
    ```bash
-   NEW_SHA=$(git rev-parse HEAD)
-   gh release edit v0.1.0 --target "$NEW_SHA" --draft=false
+   gh release edit v0.1.0 --target "$(git rev-parse v0.1.0)" --draft=false
    ```
 
 ## Version Numbering

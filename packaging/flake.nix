@@ -11,7 +11,7 @@
       let
         pkgs = import nixpkgs { inherit system; };
         
-        version = "0.1.0"; #version - This line is replaced by CI
+        version = "v0.1.0"; #version - This line is replaced by CI
         
         # Map Nix system names to our release asset names
         systemMap = {
@@ -26,16 +26,16 @@
         # Hashes for each platform (will be updated by CI)
         hashes = {
           "x86_64-linux" = {
-            hash = "sha256-gLwyuZ3Sv323jBoa80C36RzV4v7WrqXREagCT4bRlXw="; #x86_64-linux - This line is replaced by CI
+            hash = "sha256-O49sgIAyXDpuF4Ri9unnEoDIkfkIsxv24OGXZjZKdzc="; #x86_64-linux - This line is replaced by CI
           };
           "aarch64-linux" = {
-            hash = "sha256-+M+Vm4+2kso/M1i86LjmTHdGiv4OfaR0ymUrdAk4TYg="; #aarch64-linux - This line is replaced by CI
+            hash = "sha256-jzcual2oRujwftickwZKcZa+cMtVaQBdYRaF61/Alyk="; #aarch64-linux - This line is replaced by CI
           };
           "x86_64-darwin" = {
-            hash = "sha256-rjqyFibFMF6FmbB9oSGhmW4aDYTvkPzKst7yZJifTX8="; #x86_64-darwin - This line is replaced by CI
+            hash = "sha256-8gJbPxmEqQ2O+Q89VoSZZ3NS7JLXP09f97/xKTkgFTo="; #x86_64-darwin - This line is replaced by CI
           };
           "aarch64-darwin" = {
-            hash = "sha256-UaLyXG8MsxnTyDML9ItQuKPwyF3u0VGC1Bp4So1ypus="; #aarch64-darwin - This line is replaced by CI
+            hash = "sha256-xTqw66/3hZuyXORzabUTexL6yMiBYCfvmKcEIdxHUZ0="; #aarch64-darwin - This line is replaced by CI
           };
         };
         
@@ -48,7 +48,7 @@
             inherit version;
 
             src = pkgs.fetchurl {
-              url = "https://github.com/appthrust/rdd/releases/download/${version}/${assetName}";
+              url = "https://github.com/suinplayground/distribute-binary-via-devbox/releases/download/${version}/${assetName}"; #github-url - This line is replaced by CI
               inherit (hashes.${system}) hash;
             };
 
@@ -66,7 +66,7 @@
 
             meta = with pkgs.lib; {
               description = "README Document generator from Kubernetes CRD YAML files";
-              homepage = "https://github.com/appthrust/rdd";
+              homepage = "https://github.com/suinplayground/distribute-binary-via-devbox"; #github-homepage - This line is replaced by CI
               license = licenses.mit;
               maintainers = [ ];
               platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];

@@ -9,6 +9,13 @@ interface Platform {
   nixName: string;
 }
 
+interface GitHubRepoInfo {
+  name: string;
+  owner: {
+    login: string;
+  };
+}
+
 const PLATFORMS: Array<Platform> = [
   { name: "x86_64-linux", nixName: "x86_64-linux" },
   { name: "aarch64-linux", nixName: "aarch64-linux" },
@@ -30,16 +37,29 @@ async function calculateHashFromLocalFile(filePath: string): Promise<string> {
   }
 }
 
+async function fetchGitHubRepoInfo(): Promise<GitHubRepoInfo> {
+  try {
+    const result = await $`gh repo view --json owner --json name`.text();
+    return JSON.parse(result);
+  } catch (error) {
+    process.stderr.write(`Error fetching GitHub repo info: ${error}\n`);
+    throw error;
+  }
+}
+
 async function updateFlakeFile(
   filePath: string,
   version: string,
-  hashes: Map<string, string>
+  hashes: Map<string, string>,
+  repoInfo: GitHubRepoInfo
 ): Promise<void> {
   const content = await Bun.file(filePath).text();
 
-  // Build replacements object with version and hashes
+  // Build replacements object with version, hashes, and GitHub info
   const replacements: Record<string, string> = {
     version: `version = "${version}";`,
+    "github-url": `url = "https://github.com/${repoInfo.owner.login}/${repoInfo.name}/releases/download/\${version}/\${assetName}";`,
+    "github-homepage": `homepage = "https://github.com/${repoInfo.owner.login}/${repoInfo.name}";`,
   };
 
   // Add hash replacements using the platform names as tags
@@ -70,9 +90,11 @@ async function updateFlakeFile(
   // Check if all expected replacements were made
   if (mustReplace.size > 0) {
     const missing = Array.from(mustReplace).join(", ");
-    process.stderr.write(`⚠️  Warning: Could not find tags in flake.nix: ${missing}\n`);
+    process.stderr.write(
+      `⚠️  Warning: Could not find tags in flake.nix: ${missing}\n`
+    );
   }
-  
+
   if (replaced.size > 0) {
     process.stdout.write(`\n✅ Made ${replaced.size} replacements\n`);
   }
@@ -114,6 +136,12 @@ const main = defineCommand({
     process.stdout.write(`Using artifacts from: ${distDir}\n`);
     process.stdout.write(`Flake path: ${flakePath}\n\n`);
 
+    // Fetch GitHub repository info
+    const repoInfo = await fetchGitHubRepoInfo();
+    process.stdout.write(
+      `GitHub repository: ${repoInfo.owner.login}/${repoInfo.name}\n\n`
+    );
+
     // Collect hashes for all platforms
     const hashes = new Map<string, string>();
 
@@ -149,7 +177,7 @@ const main = defineCommand({
       }
 
       // Update the flake file
-      await updateFlakeFile(flakePath, version, hashes);
+      await updateFlakeFile(flakePath, version, hashes, repoInfo);
     } catch (error) {
       process.stderr.write(`\n❌ Error updating flake: ${error}\n`);
       process.exit(1);

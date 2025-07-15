@@ -28,8 +28,7 @@ jobs:
           gh release create "$VERSION" \
             --draft \
             --title "$VERSION" \
-            --notes "Release $VERSION" \
-            --target $GITHUB_SHA
+            --notes "Release $VERSION"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -44,23 +43,14 @@ jobs:
 
       # 3. Calculate hashes and update flake.nix
       - name: Update flake.nix with hashes
-        run: |
-          # Use local files to calculate hashes (faster than downloading)
-          for file in dist/*.tar.gz; do
-            platform=$(echo "$file" | sed -E 's/.*-([^-]+-[^-]+)\.tar\.gz$/\1/')
-            hash=$(nix hash file --type sha256 --sri "$file")
-            echo "Computed hash for $platform: $hash"
-          done
-          
-          # Update flake.nix using our TypeScript script with local files
-          devbox run bun scripts/update-flake.ts --version ${{ github.event.inputs.version }} --dist-dir dist
+        run: devbox run bun scripts/update-flake.ts --version ${{ github.event.inputs.version }} --dist-dir dist
 
       # 4. Commit flake.nix changes
       - name: Commit flake.nix updates
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add packaging/flake.nix
+          git add flake.nix
           git commit -m "chore: update flake.nix for $VERSION"
 
       # 5. Tag the commit and push
@@ -72,7 +62,6 @@ jobs:
       # 6. Update draft release to point to the new commit and publish
       - name: Publish release
         run: |
-          NEW_SHA=$(git rev-parse HEAD)
-          gh release edit "$VERSION" --target "$NEW_SHA" --draft=false
+          gh release edit "$VERSION" --target "$(git rev-parse HEAD)" --draft=false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

@@ -126,7 +126,7 @@ const main = defineCommand({
       type: "string",
       alias: "f",
       description: "Path to flake.nix file",
-      default: "packaging/flake.nix",
+      default: "flake.nix",
     },
   },
   async run({ args }) {

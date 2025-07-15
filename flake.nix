@@ -11,7 +11,7 @@
       let
         pkgs = import nixpkgs { inherit system; };
         
-        version = "v0.1.0"; #version - This line is replaced by CI
+        version = "v0.2.0"; #version - This line is replaced by CI
         
         # Map Nix system names to our release asset names
         systemMap = {
@@ -26,16 +26,16 @@
         # Hashes for each platform (will be updated by CI)
         hashes = {
           "x86_64-linux" = {
-            hash = "sha256-O49sgIAyXDpuF4Ri9unnEoDIkfkIsxv24OGXZjZKdzc="; #x86_64-linux - This line is replaced by CI
+            hash = "sha256-/SeOWzJNvv4HrQA+LexZFAs0InAPiyVu7HnHTOy5HBA="; #x86_64-linux - This line is replaced by CI
           };
           "aarch64-linux" = {
-            hash = "sha256-jzcual2oRujwftickwZKcZa+cMtVaQBdYRaF61/Alyk="; #aarch64-linux - This line is replaced by CI
+            hash = "sha256-kXE9F8rXoGRBuQkbfM03SwLbhLzvY5F2x3OmaGCwAx8="; #aarch64-linux - This line is replaced by CI
           };
           "x86_64-darwin" = {
-            hash = "sha256-8gJbPxmEqQ2O+Q89VoSZZ3NS7JLXP09f97/xKTkgFTo="; #x86_64-darwin - This line is replaced by CI
+            hash = "sha256-CZdqF3xyPnXxCQaO7P5H4goXoFICadpp9c4tOUpyTOE="; #x86_64-darwin - This line is replaced by CI
           };
           "aarch64-darwin" = {
-            hash = "sha256-xTqw66/3hZuyXORzabUTexL6yMiBYCfvmKcEIdxHUZ0="; #aarch64-darwin - This line is replaced by CI
+            hash = "sha256-P31bDdNO0glZvY2B8xBceN+aYiJzAD0hSzuGItYn708="; #aarch64-darwin - This line is replaced by CI
           };
         };
         

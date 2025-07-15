@@ -55,7 +55,7 @@ jobs:
           done
           
           # Update flake.nix using our TypeScript script with local files
-          devbox run bun scripts/update-flake-local.ts --version ${{ github.event.inputs.version }} --dist-dir dist
+          devbox run bun scripts/update-flake.ts --version ${{ github.event.inputs.version }} --dist-dir dist
 
       # 4. Commit flake.nix changes
       - name: Commit flake.nix updates

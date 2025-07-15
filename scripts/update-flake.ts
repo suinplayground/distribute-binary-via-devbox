@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
-import { readFileSync, writeFileSync } from "node:fs";
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
 import { $ } from "bun";
 import { defineCommand, runMain } from "citty";
 
@@ -15,85 +16,89 @@ const PLATFORMS: Array<Platform> = [
   { name: "aarch64-darwin", nixName: "aarch64-darwin" },
 ];
 
-async function downloadAndHashAsset(
-  repository: string,
-  version: string,
-  platform: string
-): Promise<string> {
-  const assetName = `rdd-${version}-${platform}.tar.gz`;
-  const url = `https://github.com/${repository}/releases/download/${version}/${assetName}`;
-
-  process.stdout.write(`Downloading and hashing ${assetName}...\n`);
+async function calculateHashFromLocalFile(filePath: string): Promise<string> {
+  process.stdout.write(`Calculating hash for ${filePath}...\n`);
 
   try {
-    // Download and calculate hash using nix-prefetch-url
-    const hashResult = await $`nix-prefetch-url --unpack ${url}`.text();
-    const hash256 = hashResult.trim();
-
-    // Convert to SRI format
-    const sriHash = await $`nix hash to-sri --type sha256 ${hash256}`.text();
+    // Calculate SRI hash directly using nix hash
+    const sriHash =
+      await $`nix hash file --type sha256 --sri ${filePath}`.text();
     return sriHash.trim();
   } catch (error) {
-    process.stderr.write(`\nError processing ${platform}: ${error}\n`);
-    process.stderr.write(`Failed to download/hash: ${url}\n`);
-    process.stderr.write(
-      "Make sure the release assets are uploaded to GitHub\n"
-    );
+    process.stderr.write(`Error hashing ${filePath}: ${error}\n`);
     throw error;
   }
 }
 
-function updateFlakeFile(
+async function updateFlakeFile(
   filePath: string,
   version: string,
   hashes: Map<string, string>
-) {
-  let content = readFileSync(filePath, "utf-8");
+): Promise<void> {
+  const content = await Bun.file(filePath).text();
 
-  // Update version
-  content = content.replace(/version = ".*";/, `version = "${version}";`);
+  // Build replacements object with version and hashes
+  const replacements: Record<string, string> = {
+    version: `version = "${version}";`,
+  };
 
-  process.stdout.write(`Updated version to ${version}\n`);
-
-  // Update hashes for each platform
+  // Add hash replacements using the platform names as tags
   for (const [platform, hash] of hashes) {
-    // Match the platform hash pattern: "platform" = { hash = "..."; };
-    const platformPattern = `"${platform}"\\s*=\\s*{\\s*hash\\s*=\\s*"[^"]*"`;
-    const replacement = `"${platform}" = {\n            hash = "${hash}"`;
-
-    const regex = new RegExp(platformPattern);
-    if (regex.test(content)) {
-      content = content.replace(regex, replacement);
-      process.stdout.write(`Updated hash for ${platform}\n`);
-    } else {
-      process.stderr.write(
-        `Warning: Could not find hash location for ${platform}\n`
-      );
-    }
+    // The tags in flake.nix match the platform names exactly
+    replacements[platform] = `hash = "${hash}";`;
   }
 
-  writeFileSync(filePath, content, "utf-8");
-  process.stdout.write(`\n✅ Successfully updated ${filePath}\n`);
+  const mustReplace = new Set<string>(Object.keys(replacements));
+  const replaced = new Set<string>();
+
+  // Replace all lines that have comment tags
+  const result = content.replaceAll(
+    /^([ \t]*).+#([a-z0-9_-]+).*$/gm,
+    (match, indent, tag) => {
+      const replacement = replacements[tag];
+      if (!replacement) {
+        // If no replacement for this tag, keep the original line
+        return match;
+      }
+      mustReplace.delete(tag);
+      replaced.add(tag);
+      process.stdout.write(`Updated ${tag}\n`);
+      return `${indent}${replacement} #${tag} - This line is replaced by CI`;
+    }
+  );
+
+  // Check if all expected replacements were made
+  if (mustReplace.size > 0) {
+    const missing = Array.from(mustReplace).join(", ");
+    process.stderr.write(`⚠️  Warning: Could not find tags in flake.nix: ${missing}\n`);
+  }
+  
+  if (replaced.size > 0) {
+    process.stdout.write(`\n✅ Made ${replaced.size} replacements\n`);
+  }
+
+  await Bun.write(filePath, result);
+  process.stdout.write(`✅ Successfully updated ${filePath}\n`);
 }
 
 const main = defineCommand({
   meta: {
-    name: "update-flake",
+    name: "update-flake-local",
     version: "1.0.0",
-    description: "Update flake.nix with new version and hashes after a release",
+    description: "Update flake.nix with hashes from local build artifacts",
   },
   args: {
     version: {
       type: "string",
       alias: "v",
-      description: "Version tag for the release (e.g., v0.1.0)",
+      description: "Version string (e.g., 0.1.0)",
       required: true,
     },
-    repository: {
+    "dist-dir": {
       type: "string",
-      alias: "r",
-      description: "GitHub repository in format owner/repo",
-      default: "appthrust/rdd",
+      alias: "d",
+      description: "Directory containing built artifacts",
+      default: "dist",
     },
     "flake-path": {
       type: "string",
@@ -101,56 +106,50 @@ const main = defineCommand({
       description: "Path to flake.nix file",
       default: "packaging/flake.nix",
     },
-    "dry-run": {
-      type: "boolean",
-      alias: "d",
-      description: "Show what would be changed without modifying files",
-      default: false,
-    },
   },
   async run({ args }) {
-    const {
-      version,
-      repository,
-      "flake-path": flakePath,
-      "dry-run": dryRun,
-    } = args;
+    const { version, "dist-dir": distDir, "flake-path": flakePath } = args;
 
-    process.stdout.write(`Updating flake.nix for release ${version}\n`);
-    process.stdout.write(`Repository: ${repository}\n`);
+    process.stdout.write(`Updating flake.nix for version ${version}\n`);
+    process.stdout.write(`Using artifacts from: ${distDir}\n`);
     process.stdout.write(`Flake path: ${flakePath}\n\n`);
 
     // Collect hashes for all platforms
     const hashes = new Map<string, string>();
 
     try {
-      // Process all platforms in parallel for speed
-      const hashPromises = PLATFORMS.map(async (platform) => {
-        const hash = await downloadAndHashAsset(
-          repository,
-          version,
-          platform.name
+      // Read all tar.gz files from dist directory
+      const files = readdirSync(distDir);
+      const tarFiles = files.filter((f) => f.endsWith(".tar.gz"));
+
+      if (tarFiles.length === 0) {
+        throw new Error(`No .tar.gz files found in ${distDir}`);
+      }
+
+      // Process each platform
+      for (const platform of PLATFORMS) {
+        // Find the corresponding file
+        const pattern = new RegExp(
+          `rdd-${version}-${platform.name}\\.tar\\.gz$`
         );
-        return { platform: platform.nixName, hash };
-      });
+        const file = tarFiles.find((f) => pattern.test(f));
 
-      const results = await Promise.all(hashPromises);
-
-      for (const { platform, hash } of results) {
-        hashes.set(platform, hash);
-      }
-
-      if (dryRun) {
-        process.stdout.write("\n🔍 Dry run mode - no files will be modified\n");
-        process.stdout.write("\nWould update flake.nix with:\n");
-        process.stdout.write(`  version = "${version}";\n`);
-        for (const [platform, hash] of hashes) {
-          process.stdout.write(`  ${platform}.hash = "${hash}";\n`);
+        if (!file) {
+          process.stderr.write(`Warning: No file found for ${platform.name}\n`);
+          continue;
         }
-      } else {
-        // Update the flake file
-        updateFlakeFile(flakePath, version, hashes);
+
+        const filePath = join(distDir, file);
+        const hash = await calculateHashFromLocalFile(filePath);
+        hashes.set(platform.nixName, hash);
       }
+
+      if (hashes.size === 0) {
+        throw new Error("No hashes calculated");
+      }
+
+      // Update the flake file
+      await updateFlakeFile(flakePath, version, hashes);
     } catch (error) {
       process.stderr.write(`\n❌ Error updating flake: ${error}\n`);
       process.exit(1);

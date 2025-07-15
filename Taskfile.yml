@@ -54,11 +54,6 @@ tasks:
     cmds:
       - rm -rf dist
 
-  update-flake:
-    desc: Update flake.nix with new version and hashes
-    cmds:
-      - bun scripts/update-flake.ts --version {{.VERSION}} --repository {{.REPO | default "appthrust/rdd"}}
-
   update-examples:
     desc: Update example outputs from the input.yaml file
     cmds:

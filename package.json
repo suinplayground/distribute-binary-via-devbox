@@ -4,9 +4,8 @@
   "private": true,
   "scripts": {
     "build": "bun scripts/build.ts",
-    "test": "bun test",
     "update-flake": "bun scripts/update-flake.ts",
-    "update-flake-local": "bun scripts/update-flake-local.ts"
+    "test": "bun test"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.1",

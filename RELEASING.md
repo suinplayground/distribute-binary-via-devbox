@@ -54,7 +54,7 @@ If you need to release manually:
 3. **Update flake.nix with hashes**:
 
    ```bash
-   bun scripts/update-flake-local.ts --version 0.1.0
+   bun scripts/update-flake.ts --version 0.1.0
    ```
 
 4. **Commit the changes**:
@@ -115,13 +115,7 @@ If the automatic PR creation fails, you can manually update the flake:
 
 ```bash
 # Update flake.nix with new hashes from local artifacts
-bun scripts/update-flake-local.ts --version 0.1.0
-
-# Or update from GitHub releases (if assets are already uploaded)
-bun scripts/update-flake.ts --version v0.1.0
-
-# Or use the task command
-task update-flake VERSION=v0.1.0
+bun scripts/update-flake.ts --version 0.1.0
 ```
 
 ## Why Draft-Based Releases?

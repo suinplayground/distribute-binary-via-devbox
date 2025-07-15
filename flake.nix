@@ -11,7 +11,7 @@
       let
         pkgs = import nixpkgs { inherit system; };
         
-        version = "v0.2.0"; #version - This line is replaced by CI
+        version = "v0.3.0"; #version - This line is replaced by CI
         
         # Map Nix system names to our release asset names
         systemMap = {
@@ -26,16 +26,16 @@
         # Hashes for each platform (will be updated by CI)
         hashes = {
           "x86_64-linux" = {
-            hash = "sha256-/SeOWzJNvv4HrQA+LexZFAs0InAPiyVu7HnHTOy5HBA="; #x86_64-linux - This line is replaced by CI
+            hash = "sha256-c22mzw4yHxpA6tsXADw1WQOAK5wVHQzANPL+WDscYv0="; #x86_64-linux - This line is replaced by CI
           };
           "aarch64-linux" = {
-            hash = "sha256-kXE9F8rXoGRBuQkbfM03SwLbhLzvY5F2x3OmaGCwAx8="; #aarch64-linux - This line is replaced by CI
+            hash = "sha256-QQyIHZy7e6zLA6bb/kQArIllaSuIl/yIzqHjbGESzWs="; #aarch64-linux - This line is replaced by CI
           };
           "x86_64-darwin" = {
-            hash = "sha256-CZdqF3xyPnXxCQaO7P5H4goXoFICadpp9c4tOUpyTOE="; #x86_64-darwin - This line is replaced by CI
+            hash = "sha256-zzQGZAQuPsiw6Anu429jfk1UmfVkoviOriaf+h9jwFw="; #x86_64-darwin - This line is replaced by CI
           };
           "aarch64-darwin" = {
-            hash = "sha256-P31bDdNO0glZvY2B8xBceN+aYiJzAD0hSzuGItYn708="; #aarch64-darwin - This line is replaced by CI
+            hash = "sha256-nCzrNbnHvw08LG0y9t5aiPGyjhMHCqwmDp4Q4Pmo4S8="; #aarch64-darwin - This line is replaced by CI
           };
         };
         
@@ -55,7 +55,7 @@
             nativeBuildInputs = [ pkgs.gnutar pkgs.gzip ];
 
             unpackPhase = ''
-              tar -xzf $src
+              tar --strip-components=1 -xzf $src
             '';
 
             installPhase = ''

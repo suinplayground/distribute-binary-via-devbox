@@ -34,7 +34,7 @@ jobs:
 
       # 2. Build binaries and upload to draft release
       - name: Build binaries
-        run: devbox run bun scripts/build.ts --version ${{ github.event.inputs.version }}
+        run: devbox run bun scripts/build.ts --version "$VERSION"
       
       - name: Upload binaries to draft release
         run: gh release upload "$VERSION" dist/*.tar.gz
@@ -43,7 +43,7 @@ jobs:
 
       # 3. Calculate hashes and update flake.nix
       - name: Update flake.nix with hashes
-        run: devbox run bun scripts/update-flake.ts --version ${{ github.event.inputs.version }} --dist-dir dist
+        run: devbox run bun scripts/update-flake.ts --version "$VERSION" --dist-dir dist
 
       # 4. Commit flake.nix changes
       - name: Commit flake.nix updates
@@ -62,6 +62,6 @@ jobs:
       # 6. Update draft release to point to the new commit and publish
       - name: Publish release
         run: |
-          gh release edit "$VERSION" --target "$(git rev-parse HEAD)" --draft=false
+          gh release edit "$VERSION" --draft=false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

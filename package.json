@@ -1,0 +1,35 @@
+{
+  "name": "@appthrust/crdd",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "bun scripts/build.ts",
+    "test": "bun test",
+    "update-flake": "bun scripts/update-flake.ts",
+    "update-flake-local": "bun scripts/update-flake-local.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.1",
+    "@suin/biome.json": "^0.0.0-beta.3",
+    "@tsconfig/bun": "^1.0.8",
+    "@tsconfig/strictest": "^2.0.5",
+    "@types/bun": "latest",
+    "@types/js-yaml": "^4.0.9",
+    "mdast-util-gfm-footnote": "^2.1.0",
+    "mdast-util-gfm-table": "^2.0.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@types/mdast": "^4.0.4",
+    "citty": "^0.1.6",
+    "glob": "^11.0.3",
+    "js-yaml": "^4.1.0",
+    "mdast-util-from-markdown": "^2.0.2",
+    "mdast-util-to-markdown": "^2.1.2",
+    "remark": "^15.0.1",
+    "remark-html": "^16.0.1",
+    "unist-builder": "^4.0.0"
+  }
+}

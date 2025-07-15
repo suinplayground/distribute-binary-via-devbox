@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (without v prefix)'
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: v${{ github.event.inputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: jetify-com/devbox-install-action@v0.13.0
+        with:
+          enable-cache: "true"
+      
+      - uses: DeterminateSystems/nix-installer-action@v14
+
+      # 1. Create draft release first (no git tag yet)
+      - name: Create draft release
+        run: |
+          gh release create "$VERSION" \
+            --draft \
+            --title "$VERSION" \
+            --notes "Release $VERSION" \
+            --target $GITHUB_SHA
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 2. Build binaries and upload to draft release
+      - name: Build binaries
+        run: devbox run bun scripts/build.ts --version ${{ github.event.inputs.version }}
+      
+      - name: Upload binaries to draft release
+        run: gh release upload "$VERSION" dist/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 3. Calculate hashes and update flake.nix
+      - name: Update flake.nix with hashes
+        run: |
+          # Use local files to calculate hashes (faster than downloading)
+          for file in dist/*.tar.gz; do
+            platform=$(echo "$file" | sed -E 's/.*-([^-]+-[^-]+)\.tar\.gz$/\1/')
+            hash=$(nix hash file --type sha256 --sri "$file")
+            echo "Computed hash for $platform: $hash"
+          done
+          
+          # Update flake.nix using our TypeScript script with local files
+          devbox run bun scripts/update-flake-local.ts --version ${{ github.event.inputs.version }} --dist-dir dist
+
+      # 4. Commit flake.nix changes
+      - name: Commit flake.nix updates
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add packaging/flake.nix
+          git commit -m "chore: update flake.nix for $VERSION"
+
+      # 5. Tag the commit and push
+      - name: Create and push tag
+        run: |
+          git tag -a "$VERSION" -m "Release $VERSION"
+          git push origin HEAD:main --tags
+
+      # 6. Update draft release to point to the new commit and publish
+      - name: Publish release
+        run: |
+          NEW_SHA=$(git rev-parse HEAD)
+          gh release edit "$VERSION" --target "$NEW_SHA" --draft=false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

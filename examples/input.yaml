@@ -1,0 +1,488 @@
+---
+# Example 1: Simple Book CRD for a Library Management System
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: books.library.example.com
+  annotations:
+    description: "Manages books in a library catalog system"
+spec:
+  group: library.example.com
+  version: v1
+  scope: Namespaced
+  names:
+    plural: books
+    singular: book
+    kind: Book
+    shortNames:
+    - bk
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        description: "Book represents a book in the library catalog"
+        required:
+        - spec
+        properties:
+          spec:
+            type: object
+            description: "BookSpec defines the desired state of a Book"
+            required:
+            - title
+            - author
+            - isbn
+            properties:
+              title:
+                type: string
+                description: "Title of the book"
+                minLength: 1
+                maxLength: 200
+                example: "The Kubernetes Book"
+              author:
+                type: string
+                description: "Author of the book"
+                minLength: 1
+                maxLength: 100
+                example: "Nigel Poulton"
+              isbn:
+                type: string
+                description: "ISBN-13 of the book"
+                pattern: "^[0-9]{3}-[0-9]-[0-9]{5}-[0-9]{3}-[0-9]$"
+                example: "978-1-521822-00-8"
+              publicationYear:
+                type: integer
+                description: "Year the book was published"
+                minimum: 1450
+                maximum: 2100
+                example: 2023
+              publisher:
+                type: string
+                description: "Publisher of the book"
+                example: "O'Reilly Media"
+              language:
+                type: string
+                description: "Language of the book"
+                default: "English"
+                enum:
+                - English
+                - Spanish
+                - French
+                - German
+                - Japanese
+                - Chinese
+              categories:
+                type: array
+                description: "Categories the book belongs to"
+                items:
+                  type: string
+                  enum:
+                  - Technology
+                  - Fiction
+                  - Non-Fiction
+                  - Science
+                  - History
+                  - Biography
+                uniqueItems: true
+                maxItems: 5
+          status:
+            type: object
+            description: "BookStatus defines the observed state of a Book"
+            properties:
+              available:
+                type: boolean
+                description: "Whether the book is currently available for borrowing"
+              lastBorrowed:
+                type: string
+                format: date-time
+                description: "Last time the book was borrowed"
+              totalBorrows:
+                type: integer
+                description: "Total number of times the book has been borrowed"
+                minimum: 0
+              condition:
+                type: string
+                description: "Physical condition of the book"
+                enum:
+                - New
+                - Good
+                - Fair
+                - Poor
+---
+# Example 2: Complex Database CRD with nested properties and validation
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: databases.data.example.com
+  annotations:
+    description: "Manages database instances with advanced configuration"
+spec:
+  group: data.example.com
+  version: v1beta1
+  scope: Namespaced
+  names:
+    plural: databases
+    singular: database
+    kind: Database
+    shortNames:
+    - db
+  versions:
+  - name: v1beta1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        description: "Database represents a managed database instance"
+        required:
+        - spec
+        properties:
+          spec:
+            type: object
+            description: "DatabaseSpec defines the desired state of a Database"
+            required:
+            - engine
+            - version
+            - storage
+            properties:
+              engine:
+                type: string
+                description: "Database engine to use"
+                enum:
+                - postgres
+                - mysql
+                - mongodb
+                x-kubernetes-validations:
+                - rule: "self == oldSelf"
+                  message: "Database engine cannot be changed after creation"
+              version:
+                type: string
+                description: "Version of the database engine"
+                pattern: "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$"
+                example: "15.4"
+              storage:
+                type: object
+                description: "Storage configuration for the database"
+                required:
+                - size
+                properties:
+                  size:
+                    type: string
+                    description: "Storage size (e.g., 10Gi, 100Gi)"
+                    pattern: "^[0-9]+(\\.[0-9]+)?(Mi|Gi|Ti)$"
+                    example: "100Gi"
+                  storageClass:
+                    type: string
+                    description: "Storage class to use for the volume"
+                    default: "standard"
+                  encrypted:
+                    type: boolean
+                    description: "Whether to encrypt storage at rest"
+                    default: true
+              resources:
+                type: object
+                description: "Resource requirements for the database"
+                properties:
+                  cpu:
+                    type: string
+                    description: "CPU request (e.g., 100m, 2)"
+                    pattern: "^[0-9]+(\\.[0-9]+)?(m)?$"
+                    example: "2"
+                  memory:
+                    type: string
+                    description: "Memory request (e.g., 512Mi, 4Gi)"
+                    pattern: "^[0-9]+(\\.[0-9]+)?(Mi|Gi)$"
+                    example: "4Gi"
+              backup:
+                type: object
+                description: "Backup configuration"
+                properties:
+                  enabled:
+                    type: boolean
+                    description: "Whether automatic backups are enabled"
+                    default: true
+                  schedule:
+                    type: string
+                    description: "Cron schedule for backups"
+                    pattern: "^(@(annually|yearly|monthly|weekly|daily|hourly))|(((\\*|\\?|[0-9]|[0-5][0-9])(/[0-9]+)?|(\\*|[0-9]|[0-5][0-9])-([0-9]|[0-5][0-9]))(\\s+|$)){5}$"
+                    default: "0 2 * * *"
+                    example: "0 2 * * *"
+                  retention:
+                    type: integer
+                    description: "Number of days to retain backups"
+                    minimum: 1
+                    maximum: 365
+                    default: 30
+              connections:
+                type: object
+                description: "Connection pool configuration"
+                properties:
+                  maxConnections:
+                    type: integer
+                    description: "Maximum number of connections"
+                    minimum: 10
+                    maximum: 1000
+                    default: 100
+                  connectionTimeout:
+                    type: integer
+                    description: "Connection timeout in seconds"
+                    minimum: 1
+                    maximum: 300
+                    default: 30
+              security:
+                type: object
+                description: "Security configuration"
+                properties:
+                  tls:
+                    type: object
+                    description: "TLS configuration"
+                    properties:
+                      enabled:
+                        type: boolean
+                        description: "Whether TLS is enabled"
+                        default: true
+                      certificateSecretRef:
+                        type: object
+                        description: "Reference to a secret containing TLS certificates"
+                        required:
+                        - name
+                        properties:
+                          name:
+                            type: string
+                            description: "Name of the secret"
+                          namespace:
+                            type: string
+                            description: "Namespace of the secret (defaults to same namespace)"
+                  allowedIPRanges:
+                    type: array
+                    description: "IP ranges allowed to connect"
+                    items:
+                      type: string
+                      pattern: "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$"
+                    example:
+                    - "10.0.0.0/8"
+                    - "192.168.1.0/24"
+          status:
+            type: object
+            description: "DatabaseStatus defines the observed state of a Database"
+            properties:
+              phase:
+                type: string
+                description: "Current phase of the database"
+                enum:
+                - Pending
+                - Creating
+                - Running
+                - Updating
+                - Failed
+                - Terminating
+              endpoint:
+                type: string
+                description: "Connection endpoint for the database"
+                example: "my-database.default.svc.cluster.local:5432"
+              ready:
+                type: boolean
+                description: "Whether the database is ready to accept connections"
+              lastBackup:
+                type: string
+                format: date-time
+                description: "Timestamp of the last successful backup"
+              conditions:
+                type: array
+                description: "Current conditions of the database"
+                items:
+                  type: object
+                  required:
+                  - type
+                  - status
+                  properties:
+                    type:
+                      type: string
+                      description: "Type of condition"
+                    status:
+                      type: string
+                      description: "Status of the condition"
+                      enum:
+                      - "True"
+                      - "False"
+                      - "Unknown"
+                    lastTransitionTime:
+                      type: string
+                      format: date-time
+                      description: "Last time the condition transitioned"
+                    reason:
+                      type: string
+                      description: "Reason for the condition's last transition"
+                    message:
+                      type: string
+                      description: "Human-readable message"
+---
+# Example 3: WebApp CRD with deployment configuration
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: webapps.apps.example.com
+  annotations:
+    description: "Manages web application deployments"
+spec:
+  group: apps.example.com
+  version: v2
+  scope: Namespaced
+  names:
+    plural: webapps
+    singular: webapp
+    kind: WebApp
+  versions:
+  - name: v2
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        description: "WebApp represents a web application deployment"
+        required:
+        - spec
+        properties:
+          spec:
+            type: object
+            description: "WebAppSpec defines the desired state of a WebApp"
+            required:
+            - image
+            - replicas
+            properties:
+              image:
+                type: string
+                description: "Container image for the web application"
+                pattern: "^[a-z0-9]+([\\._-][a-z0-9]+)*(/[a-z0-9]+([\\._-][a-z0-9]+)*)*(:[\\.\\w][\\w\\.-]{0,127})?(@sha256:[a-fA-F0-9]{64})?$"
+                example: "myapp:v1.2.3"
+              replicas:
+                type: integer
+                description: "Number of replicas to run"
+                minimum: 1
+                maximum: 100
+                default: 3
+                x-kubernetes-validations:
+                - rule: "self >= 1"
+                  message: "Replicas must be at least 1"
+              port:
+                type: integer
+                description: "Port the application listens on"
+                minimum: 1
+                maximum: 65535
+                default: 8080
+              env:
+                type: array
+                description: "Environment variables to set"
+                items:
+                  type: object
+                  required:
+                  - name
+                  - value
+                  properties:
+                    name:
+                      type: string
+                      description: "Name of the environment variable"
+                      pattern: "^[A-Z_][A-Z0-9_]*$"
+                    value:
+                      type: string
+                      description: "Value of the environment variable"
+                maxItems: 50
+              healthCheck:
+                type: object
+                description: "Health check configuration"
+                properties:
+                  path:
+                    type: string
+                    description: "HTTP path for health checks"
+                    default: "/health"
+                  intervalSeconds:
+                    type: integer
+                    description: "Interval between health checks"
+                    minimum: 5
+                    maximum: 300
+                    default: 30
+                  timeoutSeconds:
+                    type: integer
+                    description: "Timeout for health checks"
+                    minimum: 1
+                    maximum: 60
+                    default: 10
+              autoscaling:
+                type: object
+                description: "Autoscaling configuration"
+                properties:
+                  enabled:
+                    type: boolean
+                    description: "Whether autoscaling is enabled"
+                    default: false
+                  minReplicas:
+                    type: integer
+                    description: "Minimum number of replicas"
+                    minimum: 1
+                    default: 2
+                  maxReplicas:
+                    type: integer
+                    description: "Maximum number of replicas"
+                    minimum: 1
+                    maximum: 1000
+                    default: 10
+                  targetCPUUtilization:
+                    type: integer
+                    description: "Target CPU utilization percentage"
+                    minimum: 1
+                    maximum: 100
+                    default: 80
+                x-kubernetes-validations:
+                - rule: "!self.enabled || self.minReplicas <= self.maxReplicas"
+                  message: "minReplicas must be less than or equal to maxReplicas"
+              ingress:
+                type: object
+                description: "Ingress configuration"
+                properties:
+                  enabled:
+                    type: boolean
+                    description: "Whether to create an ingress"
+                    default: true
+                  hostname:
+                    type: string
+                    description: "Hostname for the ingress"
+                    pattern: "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$"
+                    example: "myapp.example.com"
+                  tls:
+                    type: boolean
+                    description: "Whether to enable TLS"
+                    default: true
+                  annotations:
+                    type: object
+                    description: "Annotations to add to the ingress"
+                    additionalProperties:
+                      type: string
+          status:
+            type: object
+            description: "WebAppStatus defines the observed state of a WebApp"
+            properties:
+              availableReplicas:
+                type: integer
+                description: "Number of available replicas"
+                minimum: 0
+              url:
+                type: string
+                description: "URL where the application is accessible"
+                example: "https://myapp.example.com"
+              lastDeploymentTime:
+                type: string
+                format: date-time
+                description: "Time of the last deployment"
+              currentVersion:
+                type: string
+                description: "Currently deployed version"
+              healthStatus:
+                type: string
+                description: "Overall health status of the application"
+                enum:
+                - Healthy
+                - Degraded
+                - Unhealthy
+                - Unknown 

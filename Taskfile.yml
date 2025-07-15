@@ -1,0 +1,68 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+  VERSION: '{{.VERSION | default "dev"}}'
+  CLI_ENTRY: './ts/cli/index.ts'
+
+tasks:
+  ci:
+    cmds:
+      - bun install --frozen-lockfile
+      - bunx tsc
+      - bunx biome check
+
+  build:
+    desc: Build binaries and archives for all platforms
+    cmds:
+      - bun scripts/build.ts --version {{.VERSION | default "dev"}}
+
+  build:binary:
+    desc: Build only binaries for all platforms
+    cmds:
+      - bun scripts/build.ts --version {{.VERSION | default "dev"}} --binaries-only
+
+  build:archive:
+    desc: Create archives from existing binaries
+    cmds:
+      - bun scripts/build.ts --version {{.VERSION | default "dev"}} --archives-only
+
+  build:darwin-arm64:
+    desc: Build macOS ARM64 binary and archive
+    cmds:
+      - bun scripts/build.ts --version {{.VERSION | default "dev"}} --platform darwin-arm64
+
+  build:darwin-x64:
+    desc: Build macOS x86_64 binary and archive
+    cmds:
+      - bun scripts/build.ts --version {{.VERSION | default "dev"}} --platform darwin-x64
+
+  build:linux-arm64:
+    desc: Build Linux ARM64 binary and archive
+    cmds:
+      - bun scripts/build.ts --version {{.VERSION | default "dev"}} --platform linux-arm64
+
+  build:linux-x64:
+    desc: Build Linux x86_64 binary and archive
+    cmds:
+      - bun scripts/build.ts --version {{.VERSION | default "dev"}} --platform linux-x64
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf dist
+
+  update-flake:
+    desc: Update flake.nix with new version and hashes
+    cmds:
+      - bun scripts/update-flake.ts --version {{.VERSION}} --repository {{.REPO | default "appthrust/rdd"}}
+
+  update-examples:
+    desc: Update example outputs from the input.yaml file
+    cmds:
+      - echo "Regenerating example outputs..."
+      - bun ts/cli/index.ts --input examples/input.yaml --output-file examples/single-file-output.md
+      - bun ts/cli/index.ts --input examples/input.yaml --output-directory examples/per-kind-output
+      - echo "✅ Example outputs updated successfully!"

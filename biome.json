@@ -1,0 +1,6 @@
+{
+  "extends": ["@suin/biome.json"],
+  "files": {
+    "includes": ["**", "!.devbox"]
+  }
+}

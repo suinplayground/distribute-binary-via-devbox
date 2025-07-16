@@ -16,9 +16,8 @@ jobs:
     env:
       VERSION: v${{ github.event.inputs.version }}
     steps:
-      - uses: actions/checkout@v4
-      
-      - uses: jetify-com/devbox-install-action@v0.13.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: jetify-com/devbox-install-action@22b0f5500b14df4ea357ce673fbd4ced940ed6a1 # v0.13.0
         with:
           enable-cache: "true"
       

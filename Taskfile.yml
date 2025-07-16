@@ -13,41 +13,13 @@ tasks:
       - bun install --frozen-lockfile
       - bunx tsc
       - bunx biome check
-
-  build:
-    desc: Build binaries and archives for all platforms
-    cmds:
-      - bun scripts/build.ts --version {{.VERSION | default "dev"}}
-
-  build:binary:
-    desc: Build only binaries for all platforms
-    cmds:
-      - bun scripts/build.ts --version {{.VERSION | default "dev"}} --binaries-only
-
-  build:archive:
-    desc: Create archives from existing binaries
-    cmds:
-      - bun scripts/build.ts --version {{.VERSION | default "dev"}} --archives-only
-
-  build:darwin-arm64:
-    desc: Build macOS ARM64 binary and archive
-    cmds:
-      - bun scripts/build.ts --version {{.VERSION | default "dev"}} --platform darwin-arm64
-
-  build:darwin-x64:
-    desc: Build macOS x86_64 binary and archive
-    cmds:
-      - bun scripts/build.ts --version {{.VERSION | default "dev"}} --platform darwin-x64
-
-  build:linux-arm64:
-    desc: Build Linux ARM64 binary and archive
-    cmds:
-      - bun scripts/build.ts --version {{.VERSION | default "dev"}} --platform linux-arm64
-
-  build:linux-x64:
-    desc: Build Linux x86_64 binary and archive
-    cmds:
-      - bun scripts/build.ts --version {{.VERSION | default "dev"}} --platform linux-x64
+      - bun test
+      - task: update-examples
+      - |
+        git diff --exit-code || {
+          echo "Generated files have changed. Please commit the changes."
+          exit 1
+        }
 
   clean:
     desc: Clean build artifacts

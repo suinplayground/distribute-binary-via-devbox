@@ -155,21 +155,30 @@ const main = defineCommand({
       }
 
       // Process each platform
-      for (const platform of PLATFORMS) {
+      const hashPromises = PLATFORMS.map(async (platform) => {
         // Find the corresponding file
         const pattern = new RegExp(
-          `rdd-${version}-${platform.name}\\.tar\\.gz$`
+          `karg-${version}-${platform.name}\\.tar\\.gz$`
         );
         const file = tarFiles.find((f) => pattern.test(f));
 
         if (!file) {
           process.stderr.write(`Warning: No file found for ${platform.name}\n`);
-          continue;
+          return null;
         }
 
         const filePath = join(distDir, file);
         const hash = await calculateHashFromLocalFile(filePath);
-        hashes.set(platform.nixName, hash);
+        return { platform: platform.nixName, hash };
+      });
+
+      const hashResults = await Promise.all(hashPromises);
+
+      // Populate the hashes map
+      for (const result of hashResults) {
+        if (result) {
+          hashes.set(result.platform, result.hash);
+        }
       }
 
       if (hashes.size === 0) {

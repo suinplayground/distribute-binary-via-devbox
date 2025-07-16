@@ -1,14 +1,10 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.14.2/.schema/devbox.schema.json",
-  "packages": [
-    "bun@latest",
-    "go-task@latest",
-    "github:suinplayground/distribute-binary-via-devbox"
-  ],
+  "packages": ["bun@latest", "go-task@latest"],
   "shell": {
     "init_hook": ["echo 'Welcome to devbox!' > /dev/null"],
     "scripts": {
-      "test": ["echo \"Error: no test specified\" && exit 1"]
+      "ci": ["task ci"]
     }
   }
 }

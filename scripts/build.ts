@@ -46,12 +46,12 @@ function prepareBuildDirectory() {
 }
 
 async function buildBinary(platform: Platform, version: string) {
-  const targetDir = `rdd-${version}-${platform.archName}`;
-  const outputPath = `dist/${targetDir}/rdd`;
+  const targetDir = `karg-${version}-${platform.archName}`;
+  const outputPath = `dist/${targetDir}/karg`;
 
   process.stdout.write(`Building binary for ${platform.displayName}...\n`);
 
-  await $`bun build --compile --target=${platform.bunTarget} ./ts/cli/index.ts --outfile=${outputPath}`;
+  await $`bun build --compile --target=${platform.bunTarget} ./ts/cli/index.ts --outfile=${outputPath} --define 'Bun.env.VERSION="${version}"'`;
 
   return targetDir;
 }
@@ -59,7 +59,7 @@ async function buildBinary(platform: Platform, version: string) {
 async function createArchive(targetDir: string, platform: Platform) {
   process.stdout.write(`Creating archive for ${platform.displayName}...\n`);
 
-  await $`cd dist && tar -czf ${targetDir}.tar.gz ${targetDir}/rdd`;
+  await $`cd dist && tar -czf ${targetDir}.tar.gz ${targetDir}/karg`;
   await $`rm -rf dist/${targetDir}`;
 }
 
@@ -70,8 +70,8 @@ async function buildPlatform(
 ) {
   if (options.archivesOnly) {
     // For archives-only mode, check if binary exists
-    const targetDir = `rdd-${version}-${platform.archName}`;
-    const binaryPath = `dist/${targetDir}/rdd`;
+    const targetDir = `karg-${version}-${platform.archName}`;
+    const binaryPath = `dist/${targetDir}/karg`;
 
     if (!existsSync(binaryPath)) {
       process.stdout.write(
@@ -95,7 +95,7 @@ const main = defineCommand({
   meta: {
     name: "build",
     version: "1.0.0",
-    description: "Build RDD binaries for multiple platforms",
+    description: "Build KARG binaries for multiple platforms",
   },
   args: {
     version: {
@@ -138,7 +138,7 @@ const main = defineCommand({
       process.exit(1);
     }
 
-    process.stdout.write(`Building RDD version: ${version}\n`);
+    process.stdout.write(`Building KARG version: ${version}\n`);
 
     prepareBuildDirectory();
 

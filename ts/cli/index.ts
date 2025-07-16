@@ -14,10 +14,12 @@ import {
 
 const main = defineCommand({
   meta: {
-    name: "rdd",
-    version: "1.0.0",
+    name: "karg",
+    version:
+      // @ts-expect-error
+      Bun.env.VERSION ?? "dev",
     description:
-      "Generate markdown documentation from Kubernetes CRD YAML files",
+      "KARG - Kubernetes API Reference Generator. Generate markdown documentation from Kubernetes CRD YAML files",
   },
   args: {
     input: {

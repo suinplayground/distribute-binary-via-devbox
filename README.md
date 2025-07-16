@@ -1,277 +1,212 @@
-# RDD - README Document generator from CRD
+# KARG - Kubernetes API Reference Generator
 
-A CLI tool that generates markdown documentation from Kubernetes Custom Resource Definition (CRD) YAML files using AST-based markdown generation for safety and reliability.
+Transform your Kubernetes CRD YAML files into beautiful, searchable API documentation in seconds.
+
+```bash
+# Generate docs for all your CRDs
+karg --input "./crds/*.yaml" --output-directory ./docs
+```
+
+## What is KARG?
+
+**KARG** (Kubernetes API Reference Generator) automatically generates comprehensive markdown documentation from your Custom Resource Definition (CRD) files. Perfect for:
+
+- 📚 **API Documentation** - Keep your CRD docs always up-to-date
+- 🤖 **AI/LLM Integration** - Generate docs optimized for AI assistants
+- 👥 **Team Collaboration** - Share clear API references with your team
+- 🔍 **API Discovery** - Understand CRD structures at a glance
+
+## Quick Start
+
+### Install
+
+Using [Devbox](https://www.jetify.com/devbox):
+```bash
+devbox add github:appthrust/karg#karg
+```
+
+Using [Nix](https://nixos.org/):
+```bash
+nix run github:appthrust/karg#karg -- --help
+```
+
+### Generate Documentation
+
+```bash
+# Multiple files - one doc per CRD
+karg --input "./crds/*.yaml" --output-directory ./docs
+
+# Single file - all CRDs combined
+karg --input "./crds/*.yaml" --output-file ./api-reference.md
+
+# With detailed logging
+karg --input "./crds/*.yaml" --output-directory ./docs --verbose
+```
+
+## Example Output
+
+KARG transforms this CRD:
+
+```yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: books.library.example.com
+spec:
+  group: library.example.com
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            required: ["title", "author", "isbn"]
+            properties:
+              title:
+                type: string
+                description: Title of the book
+                minLength: 1
+                maxLength: 200
+```
+
+Into this beautiful documentation:
+
+> ## Book
+> 
+> Book represents a book in the library catalog
+> 
+> - **API Version:** `library.example.com/v1`
+> - **Kind:** `Book`
+> - **Scope:** Namespaced
+> 
+> ### Quick Reference
+> 
+> | Field Path    | Type     | Required | Description      |
+> |---------------|----------|----------|------------------|
+> | `spec.title`  | `string` | ✓        | Title of the book |
+> | `spec.author` | `string` | ✓        | Author of the book |
+> | `spec.isbn`   | `string` | ✓        | ISBN-13 of the book |
+> 
+> ### Field Details
+> 
+> #### `spec.title`
+> 
+> Title of the book
+> 
+> - **Type:** `string`
+> - **Required**
+>
+> **Constraints:**
+>
+> - **Min Length:** `1`
+> - **Max Length:** `200`
 
 ## Features
 
-- **One API, One File**: Generates a separate markdown file for each CRD
-- **Comprehensive Documentation**: Covers both spec and status fields
-- **Flat Field Structure**: Lists all fields independently (e.g., `spec`, `spec.projectRef`, `spec.projectRef.name`)
-- **Detailed Field Information**: Includes field type, description, requirements, validation rules, and examples
-- **Safe AST-based Generation**: Uses mdast (markdown AST) and unist ecosystem for safe, reliable markdown generation
-- **Clean Architecture**: Decoupled components for easy extensibility
-- **LLM-Friendly Output**: Structured markdown format optimized for AI/LLM consumption
+✨ **Smart Documentation**
+- Automatically extracts descriptions, types, and constraints
+- Supports nested objects and arrays
+- Handles validation rules and default values
 
-## Installation
+🎯 **Developer Friendly**
+- Clean markdown output
+- Consistent formatting
+- Perfect for GitHub/GitLab wikis
 
-### Using Devbox
+🤖 **AI/LLM Optimized**
+- Structured format for easy parsing
+- Complete field information in context
+- Copy-paste ready examples
 
-If you're using [Devbox](https://www.jetify.com/devbox), you can install the pre-built binary directly:
+## Real World Examples
+
+Check out the `examples/` directory to see KARG in action:
 
 ```bash
-# Install specific version
-devbox add github:appthrust/rdd/v0.1.0#rdd
+# Try it yourself
+karg --input examples/input.yaml --output-file my-api-docs.md
 
-# Or install latest version
-devbox add github:appthrust/rdd#rdd
+# View pre-generated examples
+ls examples/per-kind-output/
 ```
 
-### Using Nix
+The examples showcase various CRD patterns:
+- Simple resources with basic validation
+- Complex nested structures
+- Arrays and maps
+- Custom validation rules
+- Status subresources
 
-If you have Nix installed, you can run RDD directly without installation:
+## CLI Options
 
-```bash
-# Run directly
-nix run github:appthrust/rdd#rdd -- --help
+```
+karg [options]
 
-# Or install to your profile
-nix profile install github:appthrust/rdd#rdd
+Options:
+  --input <pattern>              Glob pattern for CRD YAML files (required)
+  --output-directory <dir>       Generate one file per CRD
+  --output-file <file>          Generate a single combined file
+  --verbose                     Enable detailed logging
+  --help                        Show help
+  --version                     Show version
+
+Examples:
+  karg --input "./crds/*.yaml" --output-directory ./docs
+  karg --input "./manifests/**/*.yaml" --output-file ./api.md
+  karg --input config.yaml --output-directory ./output --verbose
 ```
 
-### From Source
+## Why KARG?
+
+🚀 **Fast** - Built with Bun for blazing fast performance
+
+🔒 **Safe** - AST-based generation prevents injection attacks
+
+📦 **Zero Config** - Works out of the box with standard CRDs
+
+🎨 **Beautiful Output** - Clean, consistent markdown every time
+
+## Installation Options
+
+### For Projects
+
+Add to your project's documentation pipeline:
 
 ```bash
+# Using Devbox
+devbox add github:appthrust/karg#karg
+
+# Using Nix  
+nix profile install github:appthrust/karg#karg
+```
+
+### For Development
+
+Clone and run from source:
+
+```bash
+git clone https://github.com/appthrust/karg.git
+cd karg
 bun install
+bun ts/cli/index.ts --help
 ```
-
-## Usage
-
-### Multi-file Mode
-
-Generate separate markdown files for each CRD:
-
-```bash
-# If installed via devbox/nix
-rdd --input <glob-pattern> --output-directory <output-directory> [--verbose]
-
-# If running from source
-bun ts/cli/index.ts --input <glob-pattern> --output-directory <output-directory> [--verbose]
-```
-
-### Single-file Mode
-
-Generate a combined markdown file with all CRDs:
-
-```bash
-# If installed via devbox/nix
-rdd --input <glob-pattern> --output-file <output-file> [--verbose]
-
-# If running from source
-bun ts/cli/index.ts --input <glob-pattern> --output-file <output-file> [--verbose]
-```
-
-### Examples
-
-```bash
-# Generate separate docs for all CRD files in a directory
-rdd --input "./crds/*.yaml" --output-directory ./docs
-
-# Generate a single combined documentation file
-rdd --input "./crds/*.yaml" --output-file ./api-docs.md
-
-# Generate docs for a specific file
-rdd --input config.yaml --output-directory ./documentation
-
-# Verbose output
-rdd --input "./manifests/**/*.yaml" --output-directory ./docs --verbose
-```
-
-## Examples
-
-The `examples/` directory contains comprehensive examples to help you understand the tool's capabilities:
-
-### Input Examples
-
-- **`examples/input.yaml`** - Contains three different CRD examples showcasing various features:
-  - **Book CRD**: A simple CRD for a library management system with basic field types, enums, and validation
-  - **Database CRD**: A complex CRD with nested properties, immutable fields, and extensive validation rules
-  - **WebApp CRD**: A deployment-focused CRD with autoscaling, health checks, and ingress configuration
-
-### Output Examples
-
-The tool generates two types of output from the same input:
-
-#### Single-file Output
-
-- **`examples/single-file-output.md`** - All CRDs documented in one combined file with a table of contents
-
-#### Per-kind Output
-
-- **`examples/per-kind-output/`** - Separate files for each CRD:
-  - `library.example.com-v1-book.md` - Book API documentation
-  - `data.example.com-v1beta1-database.md` - Database API documentation
-  - `apps.example.com-v2-webapp.md` - WebApp API documentation
-
-### Try the Examples
-
-Generate the documentation yourself:
-
-```bash
-# Generate single-file output
-rdd --input examples/input.yaml --output-file my-api-docs.md
-
-# Generate per-kind output
-rdd --input examples/input.yaml --output-directory my-docs/
-```
-
-### Key Features Demonstrated
-
-The examples showcase how the tool handles:
-
-- **Field Documentation**: Types, descriptions, requirements, and examples
-- **Validation Rules**: Patterns, min/max values, enum constraints
-- **Nested Objects**: Hierarchical field structures with dot notation
-- **Arrays**: Item types and constraints
-- **Kubernetes Extensions**: `x-kubernetes-validations`, immutable fields
-- **Default Values**: Showing defaults for optional fields
-- **Status Fields**: Documenting both spec and status sections
-
-## Architecture
-
-The tool follows a clean architecture with clear separation of concerns:
-
-```
-YAML string → YAML Decoder → Typed CRD Object → Document Model → AST Renderer → Markdown string
-```
-
-### Key Components
-
-- **Document Model**: Decoupled from rendering concerns for future format support
-- **Typed CRD Object**: Decoupled from specific input formats for extensibility
-- **AST-based Renderer**: Uses mdast (markdown AST) and mdast-util-to-markdown for safe, reliable output
-
-### Technology Stack
-
-- **Bun**: Fast JavaScript runtime and package manager
-- **citty**: CLI framework for robust command-line interfaces
-- **mdast-util-to-markdown**: AST-based markdown generation for safety
-- **unist-builder**: Utility for building syntax trees
-- **js-yaml**: YAML parsing with type safety
-
-### Directory Structure
-
-```
-./ts/
-├── models/
-│   ├── document/     # Document models
-│   ├── crd/          # CRD object models
-│   └── converter/    # CRD to document conversion
-├── writer/
-│   └── markdown/     # AST-based markdown generation
-├── reader/
-│   └── yaml/         # YAML to CRD object conversion
-├── cli/              # CLI implementation
-└── index.ts          # Library exports
-```
-
-### Dependency Direction
-
-- `reader` → `models/crd`
-- `writer` → `models/document`
-- `models/converter` → `models/crd`, `models/document`
-- `cli` → `reader`, `writer`, `models`
-
-## Development
-
-### Linting and Formatting
-
-```bash
-# Check and auto-fix linting issues
-bunx biome check --fix
-```
-
-### Testing
-
-Run the CLI with a sample CRD to test:
-
-```bash
-# From source
-bun ts/cli/index.ts --input example.yaml --output-directory ./test-output --verbose
-
-# Or if installed via devbox/nix
-rdd --input example.yaml --output-directory ./test-output --verbose
-```
-
-## Generated Documentation Features
-
-- **Overview Section**: API version, kind, scope, and metadata
-- **Quick Reference Table**: Summary of all fields with types and descriptions
-- **Field Hierarchy**: Clear organization of spec and status fields
-- **Comprehensive Field Info**:
-  - Type information
-  - Required/optional status
-  - Descriptions
-  - Validation rules (patterns, min/max values, etc.)
-  - Default values
-  - Enumerated values
-  - Examples (when available)
-- **Safe Rendering**: AST-based generation prevents markdown injection attacks
-- **Consistent Formatting**: Reliable output thanks to mdast ecosystem
-
-## LLM-Friendly Output Format
-
-The generated markdown documentation is specifically designed to be easily consumed by Large Language Models (LLMs) and AI coding assistants:
-
-### Structured Hierarchy
-
-- **Clear field paths** using dot notation (e.g., `spec.storage.size`)
-- **Consistent heading levels** for easy navigation
-- **Explicit type information** wrapped in inline code
-
-### Quick Reference Tables
-
-- **At-a-glance overview** of all fields up to 2 levels deep
-- **Tabular format** with Field Path, Type, Required status, and Description
-- **Visual indicators** like ✓ for required fields
-
-### Detailed Field Documentation
-
-- **Bold labels** for important attributes (**Type**, **Required**, **Optional**)
-- **Structured constraints** section with validation rules
-- **Code-formatted examples** in YAML
-- **Inline code** for technical values and field references
-
-### Why This Matters for LLMs
-
-- **Easy parsing**: Consistent structure allows LLMs to quickly understand API schemas
-- **Complete context**: All field information in one place reduces back-and-forth queries
-- **Copy-paste friendly**: Examples and field paths ready for direct use in code
-- **Self-contained**: Each field's documentation includes all relevant details
-
-## Why AST-based Generation?
-
-This tool uses the [unist](https://unifiedjs.com/) ecosystem for markdown generation, specifically:
-
-- **mdast**: Markdown Abstract Syntax Tree specification
-- **mdast-util-to-markdown**: Converts AST to markdown strings
-- **unist-builder**: Helps construct AST nodes
-
-This approach provides:
-
-1. **Safety**: No risk of markdown injection or malformed output
-2. **Reliability**: Consistent, well-formatted markdown every time
-3. **Maintainability**: Easier to modify and extend than string concatenation
-4. **Future-proof**: Easy to add new output formats by targeting different ASTs
 
 ## Contributing
 
-When contributing, please ensure:
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-1. Code follows the existing architecture patterns
-2. Use AST-based approaches for any content generation
-3. Run `bunx biome check --fix` before committing
-4. Test with various CRD files to ensure compatibility
+Key areas for contribution:
+- Additional output formats (HTML, OpenAPI)
+- More validation rule support
+- Improved formatting options
+- Bug fixes and performance improvements
 
 ## License
 
-MIT License - see LICENSE file for details
+MIT License - see [LICENSE](LICENSE) file for details.
+
+---
+
+Made with ❤️ for the Kubernetes community

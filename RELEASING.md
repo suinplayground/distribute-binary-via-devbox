@@ -1,6 +1,6 @@
-# Releasing RDD
+# Releasing KARG
 
-This document describes the release process for RDD.
+This document describes the release process for KARG.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ We use a draft-based release workflow that ensures flake.nix contains correct ha
 
 1. **Run the release workflow**:
 
-   - Go to [Actions > Release](https://github.com/appthrust/rdd/actions/workflows/release.yml)
+   - Go to [Actions > Release](https://github.com/appthrust/karg/actions/workflows/release.yml)
    - Click "Run workflow"
    - Enter the version number (without the `v` prefix, e.g., `0.1.0`)
    - Click "Run workflow"
@@ -90,11 +90,11 @@ After releasing, test the installation methods:
 
 ```bash
 # Test devbox installation
-devbox add github:appthrust/rdd/v0.1.0#rdd
-devbox run rdd --help
+devbox add github:appthrust/karg/v0.1.0#karg
+devbox run karg --help
 
 # Test nix installation
-nix run github:appthrust/rdd/v0.1.0#rdd -- --help
+nix run github:appthrust/karg/v0.1.0#karg -- --help
 ```
 
 ## Troubleshooting
@@ -135,5 +135,5 @@ This workflow solves a critical issue with Nix Flakes:
 To speed up installations for users, you can upload to Jetify Cache:
 
 ```bash
-devbox cache upload github:appthrust/rdd/v0.1.0#rdd
+devbox cache upload github:appthrust/karg/v0.1.0#karg
 ```

@@ -159,8 +159,12 @@ describe("converter", () => {
       });
 
       const result = convertCRDsToDocuments([crd], []);
-      const fields = result.apiDocs[0]?.specFields;
+      const apiDoc = result.apiDocs[0];
+      if (!apiDoc) {
+        throw new Error("apiDoc should be defined");
+      }
 
+      const fields = apiDoc.specFields;
       expect(fields).toHaveLength(3);
       expect(fields.map((f) => f.fieldPath)).toEqual([
         "spec.storage",
@@ -201,7 +205,11 @@ describe("converter", () => {
       });
 
       const result = convertCRDsToDocuments([crd], []);
-      const fields = result.apiDocs[0]?.specFields;
+      const apiDoc = result.apiDocs[0];
+      if (!apiDoc) {
+        throw new Error("apiDoc should be defined");
+      }
+      const fields = apiDoc.specFields;
 
       const tagsField = fields.find((f) => f.fieldPath === "spec.tags");
       expect(tagsField).toMatchObject({
@@ -304,7 +312,11 @@ describe("converter", () => {
       });
 
       const result = convertCRDsToDocuments([crd], []);
-      const statusFields = result.apiDocs[0]?.statusFields;
+      const apiDoc = result.apiDocs[0];
+      if (!apiDoc) {
+        throw new Error("apiDoc should be defined");
+      }
+      const statusFields = apiDoc.statusFields;
 
       expect(statusFields).toHaveLength(4);
       expect(statusFields.map((f) => f.fieldPath)).toEqual([
@@ -434,7 +446,11 @@ describe("converter", () => {
       });
 
       const result = convertCRDsToDocuments([crd], []);
-      const fields = result.apiDocs[0]?.specFields;
+      const apiDoc = result.apiDocs[0];
+      if (!apiDoc) {
+        throw new Error("apiDoc should be defined");
+      }
+      const fields = apiDoc.specFields;
 
       expect(fields[0]?.format).toBe("date-time");
       expect(fields[1]?.format).toBe("email");
@@ -454,7 +470,11 @@ describe("converter", () => {
       });
 
       const result = convertCRDsToDocuments([crd], []);
-      const fields = result.apiDocs[0]?.specFields;
+      const apiDoc = result.apiDocs[0];
+      if (!apiDoc) {
+        throw new Error("apiDoc should be defined");
+      }
+      const fields = apiDoc.specFields;
 
       expect(fields[0]?.type).toBe("string | integer");
       expect(fields[1]?.type).toBe("boolean | null");

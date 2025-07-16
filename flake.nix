@@ -1,5 +1,5 @@
 {
-  description = "RDD - README Document generator from CRD";
+  description = "KARG - Kubernetes API Reference Generator";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
@@ -13,15 +13,7 @@
         
         version = "v0.3.0"; #version - This line is replaced by CI
         
-        # Map Nix system names to our release asset names
-        systemMap = {
-          "x86_64-linux" = "x86_64-linux";
-          "aarch64-linux" = "aarch64-linux";
-          "x86_64-darwin" = "x86_64-darwin";
-          "aarch64-darwin" = "aarch64-darwin";
-        };
-        
-        assetName = "rdd-${version}-${systemMap.${system}}.tar.gz";
+        assetName = "karg-${version}-${system}.tar.gz";
         
         # Hashes for each platform (will be updated by CI)
         hashes = {
@@ -41,10 +33,10 @@
         
       in {
         packages = {
-          default = self.packages.${system}.rdd;
+          default = self.packages.${system}.karg;
           
-          rdd = pkgs.stdenvNoCC.mkDerivation {
-            pname = "rdd";
+          karg = pkgs.stdenvNoCC.mkDerivation {
+            pname = "karg";
             inherit version;
 
             src = pkgs.fetchurl {
@@ -60,17 +52,17 @@
 
             installPhase = ''
               mkdir -p $out/bin
-              cp rdd $out/bin/
-              chmod +x $out/bin/rdd
+              cp karg $out/bin/
+              chmod +x $out/bin/karg
             '';
 
             meta = with pkgs.lib; {
-              description = "README Document generator from Kubernetes CRD YAML files";
+              description = "KARG - Kubernetes API Reference Generator. Generate documentation from Kubernetes CRD YAML files";
               homepage = "https://github.com/suinplayground/distribute-binary-via-devbox"; #github-homepage - This line is replaced by CI
               license = licenses.mit;
               maintainers = [ ];
               platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
-              mainProgram = "rdd";
+              mainProgram = "karg";
             };
           };
         };
@@ -78,7 +70,7 @@
         # For `nix run`
         apps.default = {
           type = "app";
-          program = "${self.packages.${system}.rdd}/bin/rdd";
+          program = "${self.packages.${system}.karg}/bin/karg";
         };
       }
     );

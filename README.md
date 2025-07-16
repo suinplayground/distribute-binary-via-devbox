@@ -113,19 +113,20 @@ Into this beautiful documentation:
 > 
 > Book represents a book in the library catalog
 > 
-> - **API Version:** `library.example.com/v1`
-> - **Kind:** `Book`
+> - **API version:** `library.example.com/v1`
 > - **Scope:** Namespaced
+> - **Plural:** `books`
+> - **Singular:** `book`
 > 
 > ### Quick Reference
 > 
-> | Field Path    | Type     | Required | Description      |
-> |---------------|----------|----------|------------------|
-> | `spec.title`  | `string` | ✓        | Title of the book |
-> | `spec.author` | `string` | ✓        | Author of the book |
+> | Field path    | Type     | Required | Description         |
+> | ------------- | -------- | -------- | ------------------- |
+> | `spec.title`  | `string` | ✓        | Title of the book   |
+> | `spec.author` | `string` | ✓        | Author of the book  |
 > | `spec.isbn`   | `string` | ✓        | ISBN-13 of the book |
 > 
-> ### Field Details
+> ### Spec
 > 
 > #### `spec.title`
 > 
@@ -133,11 +134,9 @@ Into this beautiful documentation:
 > 
 > - **Type:** `string`
 > - **Required**
->
-> **Constraints:**
->
-> - **Min Length:** `1`
-> - **Max Length:** `200`
+> - **Constraints**
+>   - **Min length:** `1`
+>   - **Max length:** `200`
 
 ## Features
 

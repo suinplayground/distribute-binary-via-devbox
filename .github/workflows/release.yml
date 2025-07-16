@@ -32,6 +32,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # 2. Build binaries and upload to draft release
+      - name: Install dependencies
+        run: devbox run bun install --frozen-lockfile
+        
       - name: Build binaries
         run: devbox run bun scripts/build.ts --version "$VERSION"
       

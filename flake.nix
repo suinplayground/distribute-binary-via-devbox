@@ -11,23 +11,23 @@
       let
         pkgs = import nixpkgs { inherit system; };
         
-        version = "0.5.0"; #version - This line is replaced by CI
+        version = "0.6.0"; #version - This line is replaced by CI
         
-        assetName = "karg-${version}-${system}.tar.gz";
+        assetName = "karg-v${version}-${system}.tar.gz";
         
         # Hashes for each platform (will be updated by CI)
         hashes = {
           "x86_64-linux" = {
-            hash = "sha256-cnLqf0RPA0InN55/Z76I8+eyeJ3/5uYvBybUULdCFAM="; #x86_64-linux - This line is replaced by CI
+            hash = "sha256-Ko5IUVv61Kuc9UyUAOVwdKbHRiyjLNphQp6LWe+83Rs="; #x86_64-linux - This line is replaced by CI
           };
           "aarch64-linux" = {
-            hash = "sha256-KdZwK0fegkLnwqC2Qj3gGnVQ0Fvi9+9apKddDONZIAs="; #aarch64-linux - This line is replaced by CI
+            hash = "sha256-0TfQJIEtyFqgqFuWmpLANwBb0yliL4rG8Cs3zaSxLNs="; #aarch64-linux - This line is replaced by CI
           };
           "x86_64-darwin" = {
-            hash = "sha256-T6PquKyEOsmBnF9xOR/1kuBe1C2XsDenhlSvdGx2VVA="; #x86_64-darwin - This line is replaced by CI
+            hash = "sha256-Mrjy6lfzRAc2p8HCPOSVngRhXOThEOtr1eyGtBPcxuE="; #x86_64-darwin - This line is replaced by CI
           };
           "aarch64-darwin" = {
-            hash = "sha256-Ny4CTFbt7wrnaSaypY+cA5SM9YgdjxAs56gtX1N3Z3k="; #aarch64-darwin - This line is replaced by CI
+            hash = "sha256-DN83xKFEfuE3Ru8KEdD3tiYQRGF7R3+zNx01hKN6KdI="; #aarch64-darwin - This line is replaced by CI
           };
         };
         
@@ -40,7 +40,7 @@
             inherit version;
 
             src = pkgs.fetchurl {
-              url = "https://github.com/suinplayground/distribute-binary-via-devbox/releases/download/${version}/${assetName}"; #github-url - This line is replaced by CI
+              url = "https://github.com/suinplayground/distribute-binary-via-devbox/releases/download/v${version}/${assetName}"; #github-url - This line is replaced by CI
               inherit (hashes.${system}) hash;
             };
 

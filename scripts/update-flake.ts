@@ -74,7 +74,7 @@ async function updateFlakeFile(
   // Build replacements object with version, hashes, and GitHub info
   const replacements: Record<string, string> = {
     version: `version = "${version}";`,
-    "github-url": `url = "https://github.com/${repoInfo.owner.login}/${repoInfo.name}/releases/download/\${version}/\${assetName}";`,
+    "github-url": `url = "https://github.com/${repoInfo.owner.login}/${repoInfo.name}/releases/download/v\${version}/\${assetName}";`,
     "github-homepage": `homepage = "https://github.com/${repoInfo.owner.login}/${repoInfo.name}";`,
   };
 

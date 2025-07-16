@@ -47,11 +47,13 @@ jobs:
       - name: Update flake.nix with hashes
         run: devbox run bun scripts/update-flake.ts --version "$VERSION" --dist-dir dist
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed for gh cli that is used in the script internally
 
       # 4. Update README.md with version
       - name: Update README.md
         run: devbox run bun scripts/update-readme.ts --version "$VERSION"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed for gh cli that is used in the script internally
 
       # 5. Commit flake.nix and README.md changes
       - name: Commit updates

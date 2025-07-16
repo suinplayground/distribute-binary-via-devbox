@@ -44,7 +44,7 @@ export function renderAPIDocumentation(apiDoc: APIDocumentation): string {
     listItemIndent: "one",
     join: [
       // Join list items with no blank lines
-      (left, right, parent) => {
+      (left, right, _parent) => {
         if (left.type === "listItem" && right.type === "listItem") {
           return 0;
         }
@@ -59,12 +59,15 @@ export function renderAPIDocumentation(apiDoc: APIDocumentation): string {
           // If they're consecutive and the list is indented, they're likely in the same list item
           const leftContent = "children" in left ? left.children : [];
           const hasConstraintsOrExample = leftContent.some(
-            (child: any) =>
+            (child) =>
               child.type === "strong" &&
+              "children" in child &&
               child.children?.some(
-                (text: any) =>
-                  text.type === "text" &&
-                  (text.value === "Constraints" || text.value === "Example")
+                (textNode) =>
+                  textNode.type === "text" &&
+                  "value" in textNode &&
+                  (textNode.value === "Constraints" ||
+                    textNode.value === "Example")
               )
           );
           if (hasConstraintsOrExample) {
@@ -140,7 +143,7 @@ export function renderCombinedDocumentation(
     listItemIndent: "one",
     join: [
       // Join list items with no blank lines
-      (left, right, parent) => {
+      (left, right, _parent) => {
         if (left.type === "listItem" && right.type === "listItem") {
           return 0;
         }
@@ -155,12 +158,15 @@ export function renderCombinedDocumentation(
           // If they're consecutive and the list is indented, they're likely in the same list item
           const leftContent = "children" in left ? left.children : [];
           const hasConstraintsOrExample = leftContent.some(
-            (child: any) =>
+            (child) =>
               child.type === "strong" &&
+              "children" in child &&
               child.children?.some(
-                (text: any) =>
-                  text.type === "text" &&
-                  (text.value === "Constraints" || text.value === "Example")
+                (textNode) =>
+                  textNode.type === "text" &&
+                  "value" in textNode &&
+                  (textNode.value === "Constraints" ||
+                    textNode.value === "Example")
               )
           );
           if (hasConstraintsOrExample) {

@@ -148,7 +148,18 @@ const main = defineCommand({
   async run({ args }) {
     const { version, "dist-dir": distDir, "flake-path": flakePath } = args;
 
-    process.stdout.write(`Updating flake.nix for version ${version}\n`);
+    // Validate version format (X.Y.Z)
+    if (!/^\d+\.\d+\.\d+$/.test(version)) {
+      process.stderr.write(
+        `Error: Version must be in X.Y.Z format (e.g., 1.0.0), got: ${version}\n`
+      );
+      process.stderr.write(
+        "Note: Do not include 'v' prefix in the version number\n"
+      );
+      process.exit(1);
+    }
+
+    process.stdout.write(`Updating flake.nix for version v${version}\n`);
     process.stdout.write(`Using artifacts from: ${distDir}\n`);
     process.stdout.write(`Flake path: ${flakePath}\n\n`);
 
@@ -174,7 +185,7 @@ const main = defineCommand({
       const hashPromises = PLATFORMS.map(async (platform) => {
         // Find the corresponding file
         const pattern = new RegExp(
-          `karg-${version}-${platform.name}\\.tar\\.gz$`
+          `karg-v${version}-${platform.name}\\.tar\\.gz$`
         );
         const file = tarFiles.find((f) => pattern.test(f));
 

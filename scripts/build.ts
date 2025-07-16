@@ -46,7 +46,9 @@ function prepareBuildDirectory() {
 }
 
 async function buildBinary(platform: Platform, version: string) {
-  const targetDir = `karg-${version}-${platform.archName}`;
+  // Add 'v' prefix to archive names for consistency with Git tags
+  const archiveVersion = version === "dev" ? version : `v${version}`;
+  const targetDir = `karg-${archiveVersion}-${platform.archName}`;
   const outputPath = `dist/${targetDir}/karg`;
 
   process.stdout.write(`Building binary for ${platform.displayName}...\n`);
@@ -70,7 +72,8 @@ async function buildPlatform(
 ) {
   if (options.archivesOnly) {
     // For archives-only mode, check if binary exists
-    const targetDir = `karg-${version}-${platform.archName}`;
+    const archiveVersion = version === "dev" ? version : `v${version}`;
+    const targetDir = `karg-${archiveVersion}-${platform.archName}`;
     const binaryPath = `dist/${targetDir}/karg`;
 
     if (!existsSync(binaryPath)) {
@@ -134,6 +137,17 @@ const main = defineCommand({
     if (binariesOnly && archivesOnly) {
       process.stderr.write(
         "Error: Cannot use --binaries-only and --archives-only together\n"
+      );
+      process.exit(1);
+    }
+
+    // Validate version format (X.Y.Z)
+    if (version !== "dev" && !/^\d+\.\d+\.\d+$/.test(version)) {
+      process.stderr.write(
+        `Error: Version must be in X.Y.Z format (e.g., 1.0.0), got: ${version}\n`
+      );
+      process.stderr.write(
+        "Note: Do not include 'v' prefix in the version number\n"
       );
       process.exit(1);
     }

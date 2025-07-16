@@ -39,10 +39,7 @@ Container image for the web application
     ```regex
     ^[a-z0-9]+([\._-][a-z0-9]+)*(/[a-z0-9]+([\._-][a-z0-9]+)*)*(:[\.\w][\w\.-]{0,127})?(@sha256:[a-fA-F0-9]{64})?$
     ```
-- **Example**
-  ```yaml
-  myapp:v1.2.3
-  ```
+- **Example:** `myapp:v1.2.3`
 
 ### `spec.replicas`
 
@@ -50,7 +47,6 @@ Number of replicas to run
 
 - **Type:** `integer`
 - **Required**
-- **Default:** `3`
 - **Constraints**
   - **Minimum:** `1`
   - **Maximum:** `100`
@@ -58,6 +54,7 @@ Number of replicas to run
     ```cel
     self >= 1
     ```
+- **Default value:** `3`
 
 ### `spec.port`
 
@@ -65,10 +62,10 @@ Port the application listens on
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `8080`
 - **Constraints**
   - **Minimum:** `1`
   - **Maximum:** `65535`
+- **Default value:** `8080`
 
 ### `spec.env`
 
@@ -111,7 +108,7 @@ HTTP path for health checks
 
 - **Type:** `string`
 - **Optional**
-- **Default:** `"/health"`
+- **Default value:** `/health`
 
 ### `spec.healthCheck.intervalSeconds`
 
@@ -119,10 +116,10 @@ Interval between health checks
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `30`
 - **Constraints**
   - **Minimum:** `5`
   - **Maximum:** `300`
+- **Default value:** `30`
 
 ### `spec.healthCheck.timeoutSeconds`
 
@@ -130,10 +127,10 @@ Timeout for health checks
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `10`
 - **Constraints**
   - **Minimum:** `1`
   - **Maximum:** `60`
+- **Default value:** `10`
 
 ### `spec.autoscaling`
 
@@ -153,7 +150,7 @@ Whether autoscaling is enabled
 
 - **Type:** `boolean`
 - **Optional**
-- **Default:** `false`
+- **Default value:** `false`
 
 ### `spec.autoscaling.minReplicas`
 
@@ -161,9 +158,9 @@ Minimum number of replicas
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `2`
 - **Constraints**
   - **Minimum:** `1`
+- **Default value:** `2`
 
 ### `spec.autoscaling.maxReplicas`
 
@@ -171,10 +168,10 @@ Maximum number of replicas
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `10`
 - **Constraints**
   - **Minimum:** `1`
   - **Maximum:** `1000`
+- **Default value:** `10`
 
 ### `spec.autoscaling.targetCPUUtilization`
 
@@ -182,10 +179,10 @@ Target CPU utilization percentage
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `80`
 - **Constraints**
   - **Minimum:** `1`
   - **Maximum:** `100`
+- **Default value:** `80`
 
 ### `spec.ingress`
 
@@ -200,7 +197,7 @@ Whether to create an ingress
 
 - **Type:** `boolean`
 - **Optional**
-- **Default:** `true`
+- **Default value:** `true`
 
 ### `spec.ingress.hostname`
 
@@ -213,10 +210,7 @@ Hostname for the ingress
     ```regex
     ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
     ```
-- **Example**
-  ```yaml
-  myapp.example.com
-  ```
+- **Example:** `myapp.example.com`
 
 ### `spec.ingress.tls`
 
@@ -224,7 +218,7 @@ Whether to enable TLS
 
 - **Type:** `boolean`
 - **Optional**
-- **Default:** `true`
+- **Default value:** `true`
 
 ### `spec.ingress.annotations`
 
@@ -250,10 +244,7 @@ URL where the application is accessible
 
 - **Type:** `string`
 - **Optional**
-- **Example**
-  ```yaml
-  https://myapp.example.com
-  ```
+- **Example:** `https://myapp.example.com`
 
 ### `status.lastDeploymentTime`
 

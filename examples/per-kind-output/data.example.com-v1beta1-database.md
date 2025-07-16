@@ -1,6 +1,19 @@
 # Database
 
-Database represents a managed database instance
+Database represents a **managed database instance** with automated backups and high availability.
+
+## Supported Engines
+
+\| Engine | Versions | Features | |--------|----------|----------| | PostgreSQL | 13, 14, 15 | Full SQL support, JSONB, Extensions | | MySQL | 5.7, 8.0 | InnoDB, Replication |
+
+### Important Configuration
+
+1. **Storage**: Always use SSD-backed storage classes for production 2. **Backups**: Enable automated backups with at least 7-day retention 3. **Security**: Configure TLS and restrict access via `allowedIPs`
+   For detailed configuration examples, see the [Database Guide](https://docs.example.com/databases).
+
+***
+
+⚠️ **Warning**: Changing the `engine` or `version` after creation will result in data loss.
 
 - **API version:** `data.example.com/v1beta1`
 - **Scope:** Namespaced
@@ -50,10 +63,7 @@ Version of the database engine
     ```regex
     ^[0-9]+\.[0-9]+(\.[0-9]+)?$
     ```
-- **Example**
-  ```yaml
-  "15.4"
-  ```
+- **Example:** `"15.4"`
 
 ### `spec.storage`
 
@@ -73,10 +83,7 @@ Storage size (e.g., 10Gi, 100Gi)
     ```regex
     ^[0-9]+(\.[0-9]+)?(Mi|Gi|Ti)$
     ```
-- **Example**
-  ```yaml
-  100Gi
-  ```
+- **Example:** `100Gi`
 
 ### `spec.storage.storageClass`
 
@@ -84,7 +91,7 @@ Storage class to use for the volume
 
 - **Type:** `string`
 - **Optional**
-- **Default:** `"standard"`
+- **Default value:** `standard`
 
 ### `spec.storage.encrypted`
 
@@ -92,7 +99,7 @@ Whether to encrypt storage at rest
 
 - **Type:** `boolean`
 - **Optional**
-- **Default:** `true`
+- **Default value:** `true`
 
 ### `spec.resources`
 
@@ -112,10 +119,7 @@ CPU request (e.g., 100m, 2)
     ```regex
     ^[0-9]+(\.[0-9]+)?(m)?$
     ```
-- **Example**
-  ```yaml
-  "2"
-  ```
+- **Example:** `"2"`
 
 ### `spec.resources.memory`
 
@@ -128,10 +132,7 @@ Memory request (e.g., 512Mi, 4Gi)
     ```regex
     ^[0-9]+(\.[0-9]+)?(Mi|Gi)$
     ```
-- **Example**
-  ```yaml
-  4Gi
-  ```
+- **Example:** `4Gi`
 
 ### `spec.backup`
 
@@ -146,7 +147,7 @@ Whether automatic backups are enabled
 
 - **Type:** `boolean`
 - **Optional**
-- **Default:** `true`
+- **Default value:** `true`
 
 ### `spec.backup.schedule`
 
@@ -154,16 +155,13 @@ Cron schedule for backups
 
 - **Type:** `string`
 - **Optional**
-- **Default:** `"0 2 * * *"`
 - **Constraints**
   - **Pattern:**
     ```regex
     ^(@(annually|yearly|monthly|weekly|daily|hourly))|(((\*|\?|[0-9]|[0-5][0-9])(/[0-9]+)?|(\*|[0-9]|[0-5][0-9])-([0-9]|[0-5][0-9]))(\s+|$)){5}$
     ```
-- **Example**
-  ```yaml
-  0 2 * * *
-  ```
+- **Default value:** `0 2 * * *`
+- **Example:** `0 2 * * *`
 
 ### `spec.backup.retention`
 
@@ -171,10 +169,10 @@ Number of days to retain backups
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `30`
 - **Constraints**
   - **Minimum:** `1`
   - **Maximum:** `365`
+- **Default value:** `30`
 
 ### `spec.connections`
 
@@ -189,10 +187,10 @@ Maximum number of connections
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `100`
 - **Constraints**
   - **Minimum:** `10`
   - **Maximum:** `1000`
+- **Default value:** `100`
 
 ### `spec.connections.connectionTimeout`
 
@@ -200,10 +198,10 @@ Connection timeout in seconds
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `30`
 - **Constraints**
   - **Minimum:** `1`
   - **Maximum:** `300`
+- **Default value:** `30`
 
 ### `spec.security`
 
@@ -225,7 +223,7 @@ Whether TLS is enabled
 
 - **Type:** `boolean`
 - **Optional**
-- **Default:** `true`
+- **Default value:** `true`
 
 ### `spec.security.tls.certificateSecretRef`
 
@@ -277,10 +275,7 @@ Connection endpoint for the database
 
 - **Type:** `string`
 - **Optional**
-- **Example**
-  ```yaml
-  my-database.default.svc.cluster.local:5432
-  ```
+- **Example:** `my-database.default.svc.cluster.local:5432`
 
 ### `status.ready`
 

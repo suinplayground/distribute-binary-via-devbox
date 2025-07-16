@@ -1,6 +1,16 @@
 # Book
 
-Book represents a book in the library catalog
+Book represents a book in the library catalog system.
+
+## Overview
+
+The Book resource manages library books with support for: - **Cataloging**: Track book metadata including title, author, and ISBN - **Availability**: Monitor borrowing status and history - **Categorization**: Organize books by multiple categories
+
+### Example
+
+`yaml apiVersion: library.example.com/v1 kind: Book metadata:   name: kubernetes-book spec:   title: "The Kubernetes Book"   author: "Nigel Poulton"   isbn: "978-1-521822-00-8" `
+
+> **Note**: Books marked as `rare` editions have special handling requirements.
 
 - **API version:** `library.example.com/v1`
 - **Scope:** Namespaced
@@ -35,10 +45,7 @@ Title of the book
 - **Constraints**
   - **Min length:** `1`
   - **Max length:** `200`
-- **Example**
-  ```yaml
-  The Kubernetes Book
-  ```
+- **Example:** `The Kubernetes Book`
 
 ### `spec.author`
 
@@ -49,10 +56,7 @@ Author of the book
 - **Constraints**
   - **Min length:** `1`
   - **Max length:** `100`
-- **Example**
-  ```yaml
-  Nigel Poulton
-  ```
+- **Example:** `Nigel Poulton`
 
 ### `spec.isbn`
 
@@ -65,10 +69,7 @@ ISBN-13 of the book
     ```regex
     ^[0-9]{3}-[0-9]-[0-9]{5}-[0-9]{3}-[0-9]$
     ```
-- **Example**
-  ```yaml
-  978-1-521822-00-8
-  ```
+- **Example:** `978-1-521822-00-8`
 
 ### `spec.publicationYear`
 
@@ -79,10 +80,7 @@ Year the book was published
 - **Constraints**
   - **Minimum:** `1450`
   - **Maximum:** `2100`
-- **Example**
-  ```yaml
-  2023
-  ```
+- **Example:** `2023`
 
 ### `spec.publisher`
 
@@ -90,10 +88,7 @@ Publisher of the book
 
 - **Type:** `string`
 - **Optional**
-- **Example**
-  ```yaml
-  O'Reilly Media
-  ```
+- **Example:** `O'Reilly Media`
 
 ### `spec.language`
 
@@ -101,9 +96,9 @@ Language of the book
 
 - **Type:** `string`
 - **Optional**
-- **Default:** `"English"`
 - **Constraints**
   - **Allowed values:** `"English"`, `"Spanish"`, `"French"`, `"German"`, `"Japanese"`, `"Chinese"`
+- **Default value:** `English`
 
 ### `spec.categories`
 

@@ -368,6 +368,9 @@ function addFieldSection(
   // Add constraints as nested list items
   addConstraintsToList(fieldInfoList, field, footnotes);
 
+  // Add default value as nested list item
+  addDefaultValueToList(fieldInfoList, field);
+
   // Add examples as nested list items
   addExamplesToList(fieldInfoList, field);
 
@@ -394,15 +397,6 @@ function addBasicFieldInfoToList(
   fieldInfoList.push([
     strong([text(field.required ? "Required" : "Optional")]),
   ]);
-
-  // Default value
-  if (field.default !== undefined) {
-    fieldInfoList.push([
-      strong([text("Default:")]),
-      text(" "),
-      inlineCode(JSON.stringify(field.default)),
-    ]);
-  }
 }
 
 function addConstraintsToList(
@@ -538,9 +532,7 @@ function addExamplesToList(
   field: FieldDocumentation
 ): void {
   if (field.examples.length > 0) {
-    // Create code blocks for each example
-    const exampleContent: Array<RootContent> = [];
-
+    // Process each example
     for (const example of field.examples) {
       const yamlString = yamlDump(example, {
         indent: 2,
@@ -549,15 +541,27 @@ function addExamplesToList(
         quotingType: '"', // Use double quotes
         forceQuotes: false, // Only quote when necessary
       }).trim();
-      exampleContent.push(codeBlock(yamlString, "yaml"));
-    }
 
-    // Create a list item with "Example" label and code blocks
-    const exampleItem: Array<PhrasingContent | RootContent> = [
-      strong([text("Example")]),
-      ...exampleContent,
-    ];
-    fieldInfoList.push(exampleItem);
+      // Check if the YAML is single-line or multi-line
+      const isSingleLine = !yamlString.includes("\n");
+
+      if (isSingleLine) {
+        // Single-line: render as inline code on the same line
+        const exampleItem: Array<PhrasingContent> = [
+          strong([text("Example:")]),
+          text(" "),
+          inlineCode(yamlString),
+        ];
+        fieldInfoList.push(exampleItem);
+      } else {
+        // Multi-line: render as code block
+        const exampleItem: Array<PhrasingContent | RootContent> = [
+          strong([text("Example")]),
+          codeBlock(yamlString, "yaml"),
+        ];
+        fieldInfoList.push(exampleItem);
+      }
+    }
   }
 }
 
@@ -698,4 +702,40 @@ function truncateDescription(description: string, maxLength: number): string {
     return description;
   }
   return `${description.substring(0, maxLength - 3)}...`;
+}
+
+function addDefaultValueToList(
+  fieldInfoList: Array<Array<PhrasingContent | RootContent>>,
+  field: FieldDocumentation
+): void {
+  if (field.default !== undefined) {
+    // Convert default value to YAML format
+    const yamlString = yamlDump(field.default, {
+      indent: 2,
+      lineWidth: -1, // Disable line wrapping
+      noRefs: true, // Don't use references
+      quotingType: '"', // Use double quotes
+      forceQuotes: false, // Only quote when necessary
+    }).trim();
+
+    // Check if the YAML is single-line or multi-line
+    const isSingleLine = !yamlString.includes("\n");
+
+    if (isSingleLine) {
+      // Single-line: render as inline code on the same line
+      const defaultItem: Array<PhrasingContent> = [
+        strong([text("Default value:")]),
+        text(" "),
+        inlineCode(yamlString),
+      ];
+      fieldInfoList.push(defaultItem);
+    } else {
+      // Multi-line: render as code block
+      const defaultItem: Array<PhrasingContent | RootContent> = [
+        strong([text("Default value")]),
+        codeBlock(yamlString, "yaml"),
+      ];
+      fieldInfoList.push(defaultItem);
+    }
+  }
 }

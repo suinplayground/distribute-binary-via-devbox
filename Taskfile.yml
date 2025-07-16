@@ -12,7 +12,7 @@ tasks:
     cmds:
       - bun install --frozen-lockfile
       - bunx tsc
-      - bunx biome check
+      - bunx biome ci --error-on-warnings
       - bun test
       - task: update-examples
       - |

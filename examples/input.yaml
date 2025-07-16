@@ -23,7 +23,30 @@ spec:
     schema:
       openAPIV3Schema:
         type: object
-        description: "Book represents a book in the library catalog"
+        description: |
+          Book represents a book in the library catalog system.
+          
+          ## Overview
+          
+          The Book resource manages library books with support for:
+          - **Cataloging**: Track book metadata including title, author, and ISBN
+          - **Availability**: Monitor borrowing status and history
+          - **Categorization**: Organize books by multiple categories
+          
+          ### Example
+          
+          ```yaml
+          apiVersion: library.example.com/v1
+          kind: Book
+          metadata:
+            name: kubernetes-book
+          spec:
+            title: "The Kubernetes Book"
+            author: "Nigel Poulton"
+            isbn: "978-1-521822-00-8"
+          ```
+          
+          > **Note**: Books marked as `rare` editions have special handling requirements.
         required:
         - spec
         properties:
@@ -135,7 +158,27 @@ spec:
     schema:
       openAPIV3Schema:
         type: object
-        description: "Database represents a managed database instance"
+        description: |
+          Database represents a **managed database instance** with automated backups and high availability.
+          
+          ## Supported Engines
+          
+          | Engine | Versions | Features |
+          |--------|----------|----------|
+          | PostgreSQL | 13, 14, 15 | Full SQL support, JSONB, Extensions |
+          | MySQL | 5.7, 8.0 | InnoDB, Replication |
+          
+          ### Important Configuration
+          
+          1. **Storage**: Always use SSD-backed storage classes for production
+          2. **Backups**: Enable automated backups with at least 7-day retention
+          3. **Security**: Configure TLS and restrict access via `allowedIPs`
+          
+          For detailed configuration examples, see the [Database Guide](https://docs.example.com/databases).
+          
+          ---
+          
+          ⚠️ **Warning**: Changing the `engine` or `version` after creation will result in data loss.
         required:
         - spec
         properties:

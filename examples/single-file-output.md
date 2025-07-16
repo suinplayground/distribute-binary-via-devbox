@@ -6,7 +6,17 @@
 
 ## Book
 
-Book represents a book in the library catalog
+Book represents a book in the library catalog system.
+
+## Overview
+
+The Book resource manages library books with support for: - **Cataloging**: Track book metadata including title, author, and ISBN - **Availability**: Monitor borrowing status and history - **Categorization**: Organize books by multiple categories
+
+### Example
+
+`yaml apiVersion: library.example.com/v1 kind: Book metadata:   name: kubernetes-book spec:   title: "The Kubernetes Book"   author: "Nigel Poulton"   isbn: "978-1-521822-00-8" `
+
+> **Note**: Books marked as `rare` editions have special handling requirements.
 
 - **API version:** `library.example.com/v1`
 - **Scope:** Namespaced
@@ -41,10 +51,7 @@ Title of the book
 - **Constraints**
   - **Min length:** `1`
   - **Max length:** `200`
-- **Example**
-  ```yaml
-  The Kubernetes Book
-  ```
+- **Example:** `The Kubernetes Book`
 
 #### `spec.author`
 
@@ -55,10 +62,7 @@ Author of the book
 - **Constraints**
   - **Min length:** `1`
   - **Max length:** `100`
-- **Example**
-  ```yaml
-  Nigel Poulton
-  ```
+- **Example:** `Nigel Poulton`
 
 #### `spec.isbn`
 
@@ -71,10 +75,7 @@ ISBN-13 of the book
     ```regex
     ^[0-9]{3}-[0-9]-[0-9]{5}-[0-9]{3}-[0-9]$
     ```
-- **Example**
-  ```yaml
-  978-1-521822-00-8
-  ```
+- **Example:** `978-1-521822-00-8`
 
 #### `spec.publicationYear`
 
@@ -85,10 +86,7 @@ Year the book was published
 - **Constraints**
   - **Minimum:** `1450`
   - **Maximum:** `2100`
-- **Example**
-  ```yaml
-  2023
-  ```
+- **Example:** `2023`
 
 #### `spec.publisher`
 
@@ -96,10 +94,7 @@ Publisher of the book
 
 - **Type:** `string`
 - **Optional**
-- **Example**
-  ```yaml
-  O'Reilly Media
-  ```
+- **Example:** `O'Reilly Media`
 
 #### `spec.language`
 
@@ -107,9 +102,9 @@ Language of the book
 
 - **Type:** `string`
 - **Optional**
-- **Default:** `"English"`
 - **Constraints**
   - **Allowed values:** `"English"`, `"Spanish"`, `"French"`, `"German"`, `"Japanese"`, `"Chinese"`
+- **Default value:** `English`
 
 #### `spec.categories`
 
@@ -157,7 +152,20 @@ Physical condition of the book
 
 ## Database
 
-Database represents a managed database instance
+Database represents a **managed database instance** with automated backups and high availability.
+
+## Supported Engines
+
+\| Engine | Versions | Features | |--------|----------|----------| | PostgreSQL | 13, 14, 15 | Full SQL support, JSONB, Extensions | | MySQL | 5.7, 8.0 | InnoDB, Replication |
+
+### Important Configuration
+
+1. **Storage**: Always use SSD-backed storage classes for production 2. **Backups**: Enable automated backups with at least 7-day retention 3. **Security**: Configure TLS and restrict access via `allowedIPs`
+   For detailed configuration examples, see the [Database Guide](https://docs.example.com/databases).
+
+***
+
+⚠️ **Warning**: Changing the `engine` or `version` after creation will result in data loss.
 
 - **API version:** `data.example.com/v1beta1`
 - **Scope:** Namespaced
@@ -207,10 +215,7 @@ Version of the database engine
     ```regex
     ^[0-9]+\.[0-9]+(\.[0-9]+)?$
     ```
-- **Example**
-  ```yaml
-  "15.4"
-  ```
+- **Example:** `"15.4"`
 
 #### `spec.storage`
 
@@ -230,10 +235,7 @@ Storage size (e.g., 10Gi, 100Gi)
     ```regex
     ^[0-9]+(\.[0-9]+)?(Mi|Gi|Ti)$
     ```
-- **Example**
-  ```yaml
-  100Gi
-  ```
+- **Example:** `100Gi`
 
 #### `spec.storage.storageClass`
 
@@ -241,7 +243,7 @@ Storage class to use for the volume
 
 - **Type:** `string`
 - **Optional**
-- **Default:** `"standard"`
+- **Default value:** `standard`
 
 #### `spec.storage.encrypted`
 
@@ -249,7 +251,7 @@ Whether to encrypt storage at rest
 
 - **Type:** `boolean`
 - **Optional**
-- **Default:** `true`
+- **Default value:** `true`
 
 #### `spec.resources`
 
@@ -269,10 +271,7 @@ CPU request (e.g., 100m, 2)
     ```regex
     ^[0-9]+(\.[0-9]+)?(m)?$
     ```
-- **Example**
-  ```yaml
-  "2"
-  ```
+- **Example:** `"2"`
 
 #### `spec.resources.memory`
 
@@ -285,10 +284,7 @@ Memory request (e.g., 512Mi, 4Gi)
     ```regex
     ^[0-9]+(\.[0-9]+)?(Mi|Gi)$
     ```
-- **Example**
-  ```yaml
-  4Gi
-  ```
+- **Example:** `4Gi`
 
 #### `spec.backup`
 
@@ -303,7 +299,7 @@ Whether automatic backups are enabled
 
 - **Type:** `boolean`
 - **Optional**
-- **Default:** `true`
+- **Default value:** `true`
 
 #### `spec.backup.schedule`
 
@@ -311,16 +307,13 @@ Cron schedule for backups
 
 - **Type:** `string`
 - **Optional**
-- **Default:** `"0 2 * * *"`
 - **Constraints**
   - **Pattern:**
     ```regex
     ^(@(annually|yearly|monthly|weekly|daily|hourly))|(((\*|\?|[0-9]|[0-5][0-9])(/[0-9]+)?|(\*|[0-9]|[0-5][0-9])-([0-9]|[0-5][0-9]))(\s+|$)){5}$
     ```
-- **Example**
-  ```yaml
-  0 2 * * *
-  ```
+- **Default value:** `0 2 * * *`
+- **Example:** `0 2 * * *`
 
 #### `spec.backup.retention`
 
@@ -328,10 +321,10 @@ Number of days to retain backups
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `30`
 - **Constraints**
   - **Minimum:** `1`
   - **Maximum:** `365`
+- **Default value:** `30`
 
 #### `spec.connections`
 
@@ -346,10 +339,10 @@ Maximum number of connections
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `100`
 - **Constraints**
   - **Minimum:** `10`
   - **Maximum:** `1000`
+- **Default value:** `100`
 
 #### `spec.connections.connectionTimeout`
 
@@ -357,10 +350,10 @@ Connection timeout in seconds
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `30`
 - **Constraints**
   - **Minimum:** `1`
   - **Maximum:** `300`
+- **Default value:** `30`
 
 #### `spec.security`
 
@@ -382,7 +375,7 @@ Whether TLS is enabled
 
 - **Type:** `boolean`
 - **Optional**
-- **Default:** `true`
+- **Default value:** `true`
 
 #### `spec.security.tls.certificateSecretRef`
 
@@ -434,10 +427,7 @@ Connection endpoint for the database
 
 - **Type:** `string`
 - **Optional**
-- **Example**
-  ```yaml
-  my-database.default.svc.cluster.local:5432
-  ```
+- **Example:** `my-database.default.svc.cluster.local:5432`
 
 #### `status.ready`
 
@@ -538,10 +528,7 @@ Container image for the web application
     ```regex
     ^[a-z0-9]+([\._-][a-z0-9]+)*(/[a-z0-9]+([\._-][a-z0-9]+)*)*(:[\.\w][\w\.-]{0,127})?(@sha256:[a-fA-F0-9]{64})?$
     ```
-- **Example**
-  ```yaml
-  myapp:v1.2.3
-  ```
+- **Example:** `myapp:v1.2.3`
 
 #### `spec.replicas`
 
@@ -549,7 +536,6 @@ Number of replicas to run
 
 - **Type:** `integer`
 - **Required**
-- **Default:** `3`
 - **Constraints**
   - **Minimum:** `1`
   - **Maximum:** `100`
@@ -557,6 +543,7 @@ Number of replicas to run
     ```cel
     self >= 1
     ```
+- **Default value:** `3`
 
 #### `spec.port`
 
@@ -564,10 +551,10 @@ Port the application listens on
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `8080`
 - **Constraints**
   - **Minimum:** `1`
   - **Maximum:** `65535`
+- **Default value:** `8080`
 
 #### `spec.env`
 
@@ -610,7 +597,7 @@ HTTP path for health checks
 
 - **Type:** `string`
 - **Optional**
-- **Default:** `"/health"`
+- **Default value:** `/health`
 
 #### `spec.healthCheck.intervalSeconds`
 
@@ -618,10 +605,10 @@ Interval between health checks
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `30`
 - **Constraints**
   - **Minimum:** `5`
   - **Maximum:** `300`
+- **Default value:** `30`
 
 #### `spec.healthCheck.timeoutSeconds`
 
@@ -629,10 +616,10 @@ Timeout for health checks
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `10`
 - **Constraints**
   - **Minimum:** `1`
   - **Maximum:** `60`
+- **Default value:** `10`
 
 #### `spec.autoscaling`
 
@@ -652,7 +639,7 @@ Whether autoscaling is enabled
 
 - **Type:** `boolean`
 - **Optional**
-- **Default:** `false`
+- **Default value:** `false`
 
 #### `spec.autoscaling.minReplicas`
 
@@ -660,9 +647,9 @@ Minimum number of replicas
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `2`
 - **Constraints**
   - **Minimum:** `1`
+- **Default value:** `2`
 
 #### `spec.autoscaling.maxReplicas`
 
@@ -670,10 +657,10 @@ Maximum number of replicas
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `10`
 - **Constraints**
   - **Minimum:** `1`
   - **Maximum:** `1000`
+- **Default value:** `10`
 
 #### `spec.autoscaling.targetCPUUtilization`
 
@@ -681,10 +668,10 @@ Target CPU utilization percentage
 
 - **Type:** `integer`
 - **Optional**
-- **Default:** `80`
 - **Constraints**
   - **Minimum:** `1`
   - **Maximum:** `100`
+- **Default value:** `80`
 
 #### `spec.ingress`
 
@@ -699,7 +686,7 @@ Whether to create an ingress
 
 - **Type:** `boolean`
 - **Optional**
-- **Default:** `true`
+- **Default value:** `true`
 
 #### `spec.ingress.hostname`
 
@@ -712,10 +699,7 @@ Hostname for the ingress
     ```regex
     ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
     ```
-- **Example**
-  ```yaml
-  myapp.example.com
-  ```
+- **Example:** `myapp.example.com`
 
 #### `spec.ingress.tls`
 
@@ -723,7 +707,7 @@ Whether to enable TLS
 
 - **Type:** `boolean`
 - **Optional**
-- **Default:** `true`
+- **Default value:** `true`
 
 #### `spec.ingress.annotations`
 
@@ -749,10 +733,7 @@ URL where the application is accessible
 
 - **Type:** `string`
 - **Optional**
-- **Example**
-  ```yaml
-  https://myapp.example.com
-  ```
+- **Example:** `https://myapp.example.com`
 
 #### `status.lastDeploymentTime`
 

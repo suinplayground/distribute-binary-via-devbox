@@ -2,15 +2,15 @@
 
 Database represents a managed database instance
 
-- **API Version:** `data.example.com/v1beta1`
+- **API version:** `data.example.com/v1beta1`
 - **Scope:** Namespaced
 - **Plural:** `databases`
 - **Singular:** `database`
-- **Short Names:** `db`
+- **Short names:** `db`
 
 ## Quick Reference
 
-| Field Path          | Type       | Required | Description                                         |
+| Field path          | Type       | Required | Description                                         |
 | ------------------- | ---------- | -------- | --------------------------------------------------- |
 | `spec.engine`       | `string`   | ✓        | Database engine to use                              |
 | `spec.version`      | `string`   | ✓        | Version of the database engine                      |
@@ -35,11 +35,9 @@ Database engine to use
 
 - **Type:** `string`
 - **Required**
-
-**Constraints**
-
-- **Immutable** [^immutable_by_CEL_self_==_oldSelf]
-- **Allowed Values:** `"postgres"`, `"mysql"`, `"mongodb"`
+- **Constraints**
+  - **Immutable** [^immutable_by_CEL_self_==_oldSelf]
+  - **Allowed values:** `"postgres"`, `"mysql"`, `"mongodb"`
 
 ### `spec.version`
 
@@ -47,20 +45,15 @@ Version of the database engine
 
 - **Type:** `string`
 - **Required**
-
-**Constraints**
-
-- **Pattern:**&#x20;
-
-  ```regex
-  ^[0-9]+\.[0-9]+(\.[0-9]+)?$
+- **Constraints**
+  - **Pattern:**
+    ```regex
+    ^[0-9]+\.[0-9]+(\.[0-9]+)?$
+    ```
+- **Example**
+  ```yaml
+  "15.4"
   ```
-
-**Example**
-
-```yaml
-"15.4"
-```
 
 ### `spec.storage`
 
@@ -75,20 +68,15 @@ Storage size (e.g., 10Gi, 100Gi)
 
 - **Type:** `string`
 - **Required**
-
-**Constraints**
-
-- **Pattern:**&#x20;
-
-  ```regex
-  ^[0-9]+(\.[0-9]+)?(Mi|Gi|Ti)$
+- **Constraints**
+  - **Pattern:**
+    ```regex
+    ^[0-9]+(\.[0-9]+)?(Mi|Gi|Ti)$
+    ```
+- **Example**
+  ```yaml
+  100Gi
   ```
-
-**Example**
-
-```yaml
-100Gi
-```
 
 ### `spec.storage.storageClass`
 
@@ -119,20 +107,15 @@ CPU request (e.g., 100m, 2)
 
 - **Type:** `string`
 - **Optional**
-
-**Constraints**
-
-- **Pattern:**&#x20;
-
-  ```regex
-  ^[0-9]+(\.[0-9]+)?(m)?$
+- **Constraints**
+  - **Pattern:**
+    ```regex
+    ^[0-9]+(\.[0-9]+)?(m)?$
+    ```
+- **Example**
+  ```yaml
+  "2"
   ```
-
-**Example**
-
-```yaml
-"2"
-```
 
 ### `spec.resources.memory`
 
@@ -140,20 +123,15 @@ Memory request (e.g., 512Mi, 4Gi)
 
 - **Type:** `string`
 - **Optional**
-
-**Constraints**
-
-- **Pattern:**&#x20;
-
-  ```regex
-  ^[0-9]+(\.[0-9]+)?(Mi|Gi)$
+- **Constraints**
+  - **Pattern:**
+    ```regex
+    ^[0-9]+(\.[0-9]+)?(Mi|Gi)$
+    ```
+- **Example**
+  ```yaml
+  4Gi
   ```
-
-**Example**
-
-```yaml
-4Gi
-```
 
 ### `spec.backup`
 
@@ -177,20 +155,15 @@ Cron schedule for backups
 - **Type:** `string`
 - **Optional**
 - **Default:** `"0 2 * * *"`
-
-**Constraints**
-
-- **Pattern:**&#x20;
-
-  ```regex
-  ^(@(annually|yearly|monthly|weekly|daily|hourly))|(((\*|\?|[0-9]|[0-5][0-9])(/[0-9]+)?|(\*|[0-9]|[0-5][0-9])-([0-9]|[0-5][0-9]))(\s+|$)){5}$
+- **Constraints**
+  - **Pattern:**
+    ```regex
+    ^(@(annually|yearly|monthly|weekly|daily|hourly))|(((\*|\?|[0-9]|[0-5][0-9])(/[0-9]+)?|(\*|[0-9]|[0-5][0-9])-([0-9]|[0-5][0-9]))(\s+|$)){5}$
+    ```
+- **Example**
+  ```yaml
+  0 2 * * *
   ```
-
-**Example**
-
-```yaml
-0 2 * * *
-```
 
 ### `spec.backup.retention`
 
@@ -199,11 +172,9 @@ Number of days to retain backups
 - **Type:** `integer`
 - **Optional**
 - **Default:** `30`
-
-**Constraints**
-
-- **Minimum:** `1`
-- **Maximum:** `365`
+- **Constraints**
+  - **Minimum:** `1`
+  - **Maximum:** `365`
 
 ### `spec.connections`
 
@@ -219,11 +190,9 @@ Maximum number of connections
 - **Type:** `integer`
 - **Optional**
 - **Default:** `100`
-
-**Constraints**
-
-- **Minimum:** `10`
-- **Maximum:** `1000`
+- **Constraints**
+  - **Minimum:** `10`
+  - **Maximum:** `1000`
 
 ### `spec.connections.connectionTimeout`
 
@@ -232,11 +201,9 @@ Connection timeout in seconds
 - **Type:** `integer`
 - **Optional**
 - **Default:** `30`
-
-**Constraints**
-
-- **Minimum:** `1`
-- **Maximum:** `300`
+- **Constraints**
+  - **Minimum:** `1`
+  - **Maximum:** `300`
 
 ### `spec.security`
 
@@ -287,13 +254,11 @@ IP ranges allowed to connect
 
 - **Type:** `string[]`
 - **Optional**
-
-**Example**
-
-```yaml
-- 10.0.0.0/8
-- 192.168.1.0/24
-```
+- **Example**
+  ```yaml
+  - 10.0.0.0/8
+  - 192.168.1.0/24
+  ```
 
 ## Status
 
@@ -303,10 +268,8 @@ Current phase of the database
 
 - **Type:** `string`
 - **Optional**
-
-**Constraints**
-
-- **Allowed Values:** `"Pending"`, `"Creating"`, `"Running"`, `"Updating"`, `"Failed"`, `"Terminating"`
+- **Constraints**
+  - **Allowed values:** `"Pending"`, `"Creating"`, `"Running"`, `"Updating"`, `"Failed"`, `"Terminating"`
 
 ### `status.endpoint`
 
@@ -314,12 +277,10 @@ Connection endpoint for the database
 
 - **Type:** `string`
 - **Optional**
-
-**Example**
-
-```yaml
-my-database.default.svc.cluster.local:5432
-```
+- **Example**
+  ```yaml
+  my-database.default.svc.cluster.local:5432
+  ```
 
 ### `status.ready`
 
@@ -355,10 +316,8 @@ Status of the condition
 
 - **Type:** `string`
 - **Required**
-
-**Constraints**
-
-- **Allowed Values:** `"True"`, `"False"`, `"Unknown"`
+- **Constraints**
+  - **Allowed values:** `"True"`, `"False"`, `"Unknown"`
 
 ### `status.conditions.lastTransitionTime`
 

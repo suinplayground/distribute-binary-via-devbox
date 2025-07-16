@@ -52,10 +52,10 @@ describe("markdown writer", () => {
       const result = renderAPIDocumentation(apiDoc);
 
       expect(result).toContain("# TestResource");
-      expect(result).toContain("- **API Version:** `test.io/v1`");
+      expect(result).toContain("- **API version:** `test.io/v1`");
       expect(result).toContain("- **Scope:** Namespaced");
       expect(result).toContain("## Quick Reference");
-      expect(result).toContain("| Field Path");
+      expect(result).toContain("| Field path");
       expect(result).toContain("| `spec.name`");
       expect(result).toContain("### `spec.name`");
       expect(result).toContain("Name of the resource");
@@ -87,7 +87,7 @@ describe("markdown writer", () => {
 
       expect(result).toContain("- **Plural:** `testresources`");
       expect(result).toContain("- **Singular:** `testresource`");
-      expect(result).toContain("- **Short Names:** `tr`, `test`");
+      expect(result).toContain("- **Short names:** `tr`, `test`");
     });
 
     test("renders quick reference table", () => {
@@ -100,7 +100,7 @@ describe("markdown writer", () => {
       const result = renderAPIDocumentation(apiDoc);
 
       // Check table structure - just check key parts exist
-      expect(result).toContain("| Field Path");
+      expect(result).toContain("| Field path");
       expect(result).toContain("| Type");
       expect(result).toContain("| Required");
       expect(result).toContain("| `spec`");
@@ -176,8 +176,8 @@ describe("markdown writer", () => {
       expect(result).toContain("- **Immutable**");
       expect(result).toContain("- **Validation:** Must be at least 1");
       expect(result).toContain("self >= 1");
-      expect(result).toContain("**Example**");
-      expect(result).toContain("```yaml\n1\n```");
+      expect(result).toContain("- **Example**");
+      expect(result).toContain("```yaml\n  1\n  ```");
     });
 
     test("renders enum values", () => {
@@ -190,7 +190,7 @@ describe("markdown writer", () => {
       const result = renderAPIDocumentation(apiDoc);
 
       expect(result).toContain(
-        '- **Allowed Values:** `"Pending"`, `"Running"`, `"Completed"`, `"Failed"`'
+        '- **Allowed values:** `"Pending"`, `"Running"`, `"Completed"`, `"Failed"`'
       );
     });
 
@@ -232,9 +232,9 @@ describe("markdown writer", () => {
 
       const result = renderAPIDocumentation(apiDoc);
 
-      expect(result).toContain("- **Min Items:** `1`");
-      expect(result).toContain("- **Max Items:** `5`");
-      expect(result).toContain("- **Unique Items:** Yes");
+      expect(result).toContain("- **Min items:** `1`");
+      expect(result).toContain("- **Max items:** `5`");
+      expect(result).toContain("- **Unique items:** Yes");
     });
 
     test("groups fields by path hierarchy", () => {
@@ -392,6 +392,121 @@ describe("markdown writer", () => {
       // Check that footnotes aren't rendered (they're escaped)
       const footnoteMatches = result.match(/\[^\d+\]:/g);
       expect(footnoteMatches).toBeNull();
+    });
+  });
+
+  describe("blank line formatting", () => {
+    test("adds blank line between API description and metadata list", () => {
+      const apiDoc: APIDocumentation = {
+        title: "TestResource",
+        kind: "TestResource",
+        group: "test.io",
+        version: "v1",
+        scope: "Namespaced",
+        description: "This is a test resource for testing blank lines",
+        specFields: [],
+        statusFields: [],
+      };
+
+      const result = renderAPIDocumentation(apiDoc);
+
+      // Check that there's a blank line between description and metadata
+      expect(result).toContain(
+        "This is a test resource for testing blank lines\n\n- **API version:**"
+      );
+    });
+
+    test("adds blank line between field description and field info list", () => {
+      const apiDoc = createAPIDoc("TestResource", [
+        createField("spec.name", "string", true, "The name of the resource"),
+      ]);
+
+      const result = renderAPIDocumentation(apiDoc);
+
+      // Check that there's a blank line between field description and the field info list
+      expect(result).toContain("The name of the resource\n\n- **Type:**");
+    });
+
+    test("no blank line after Constraints label in nested list", () => {
+      const apiDoc = createAPIDoc("TestResource", [
+        createField("spec.title", "string", false, "Title of the book", {
+          minLength: 1,
+          maxLength: 200,
+        }),
+      ]);
+
+      const result = renderAPIDocumentation(apiDoc);
+
+      // Check that there's no blank line after "Constraints"
+      expect(result).toContain("- **Constraints**\n  - **Min length:**");
+      expect(result).not.toContain("- **Constraints**\n\n  - **Min length:**");
+    });
+
+    test("no blank line after Example label with code block", () => {
+      const apiDoc = createAPIDoc("TestResource", [
+        createField("spec.hostname", "string", false, "The hostname", {
+          examples: ["myapp.example.com"],
+        }),
+      ]);
+
+      const result = renderAPIDocumentation(apiDoc);
+
+      // Check that there's no blank line after "Example"
+      expect(result).toContain("- **Example**\n  ```yaml");
+      expect(result).not.toContain("- **Example**\n\n  ```yaml");
+    });
+
+    test("no blank line between validation message and code block", () => {
+      const apiDoc = createAPIDoc("TestResource", [
+        createField("spec.replicas", "integer", false, "Number of replicas", {
+          validationRules: [
+            { rule: "self >= 1", message: "Must be at least 1" },
+          ],
+        }),
+      ]);
+
+      const result = renderAPIDocumentation(apiDoc);
+
+      // Check that there's no blank line between validation message and code block
+      expect(result).toContain(
+        "- **Validation:** Must be at least 1\n    ```cel"
+      );
+      expect(result).not.toContain(
+        "- **Validation:** Must be at least 1\n\n    ```cel"
+      );
+    });
+
+    test("no blank line between pattern label and code block", () => {
+      const apiDoc = createAPIDoc("TestResource", [
+        createField("spec.email", "string", false, "Email address", {
+          pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+        }),
+      ]);
+
+      const result = renderAPIDocumentation(apiDoc);
+
+      // Check that there's no blank line between "Pattern:" and code block
+      expect(result).toContain("- **Pattern:**\n    ```regex");
+      expect(result).not.toContain("- **Pattern:**\n\n    ```regex");
+    });
+
+    test("proper formatting for complete field with all sections", () => {
+      const apiDoc = createAPIDoc("TestResource", [
+        createField("spec.name", "string", true, "The name of the resource", {
+          minLength: 1,
+          maxLength: 50,
+          pattern: "^[a-z0-9-]+$",
+          examples: ["my-resource"],
+        }),
+      ]);
+
+      const result = renderAPIDocumentation(apiDoc);
+
+      // Check overall structure with proper blank lines
+      expect(result).toContain("The name of the resource\n\n- **Type:**"); // Blank line after description
+      expect(result).toContain("- **Constraints**\n  - **Min length:**"); // No blank line after Constraints
+      expect(result).toContain("- **Pattern:**\n    ```regex"); // No blank line after Pattern
+      expect(result).toContain("- **Example**\n  ```yaml"); // No blank line after Example
     });
   });
 });

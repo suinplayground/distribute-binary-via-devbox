@@ -45,7 +45,7 @@ export interface OpenAPIV3Schema {
   maxItems?: number;
   uniqueItems?: boolean;
   default?: unknown;
-  example?: unknown;
+  example?: unknown; // OpenAPI v3.0 only supports singular 'example', not 'examples'
   nullable?: boolean;
   oneOf?: Array<OpenAPIV3Schema>;
   anyOf?: Array<OpenAPIV3Schema>;

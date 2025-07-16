@@ -44,9 +44,32 @@ export function renderAPIDocumentation(apiDoc: APIDocumentation): string {
     listItemIndent: "one",
     join: [
       // Join list items with no blank lines
-      (left, right) => {
+      (left, right, parent) => {
         if (left.type === "listItem" && right.type === "listItem") {
           return 0;
+        }
+        // No blank line between paragraph and code block
+        if (left.type === "paragraph" && right.type === "code") {
+          return 0;
+        }
+        // No blank line between paragraph and list when inside a list item
+        // This prevents blank lines after "Constraints" or "Example" labels
+        if (left.type === "paragraph" && right.type === "list") {
+          // Check if both are children of a list item by looking at their positions
+          // If they're consecutive and the list is indented, they're likely in the same list item
+          const leftContent = "children" in left ? left.children : [];
+          const hasConstraintsOrExample = leftContent.some(
+            (child: any) =>
+              child.type === "strong" &&
+              child.children?.some(
+                (text: any) =>
+                  text.type === "text" &&
+                  (text.value === "Constraints" || text.value === "Example")
+              )
+          );
+          if (hasConstraintsOrExample) {
+            return 0;
+          }
         }
         return 1;
       },
@@ -117,9 +140,32 @@ export function renderCombinedDocumentation(
     listItemIndent: "one",
     join: [
       // Join list items with no blank lines
-      (left, right) => {
+      (left, right, parent) => {
         if (left.type === "listItem" && right.type === "listItem") {
           return 0;
+        }
+        // No blank line between paragraph and code block
+        if (left.type === "paragraph" && right.type === "code") {
+          return 0;
+        }
+        // No blank line between paragraph and list when inside a list item
+        // This prevents blank lines after "Constraints" or "Example" labels
+        if (left.type === "paragraph" && right.type === "list") {
+          // Check if both are children of a list item by looking at their positions
+          // If they're consecutive and the list is indented, they're likely in the same list item
+          const leftContent = "children" in left ? left.children : [];
+          const hasConstraintsOrExample = leftContent.some(
+            (child: any) =>
+              child.type === "strong" &&
+              child.children?.some(
+                (text: any) =>
+                  text.type === "text" &&
+                  (text.value === "Constraints" || text.value === "Example")
+              )
+          );
+          if (hasConstraintsOrExample) {
+            return 0;
+          }
         }
         return 1;
       },
@@ -183,7 +229,7 @@ function addOverviewSection(
 ): void {
   const overviewItems: Array<Array<PhrasingContent>> = [
     [
-      strong([text("API Version:")]),
+      strong([text("API version:")]),
       text(" "),
       inlineCode(`${apiDoc.group}/${apiDoc.version}`),
     ],
@@ -208,7 +254,7 @@ function addOverviewSection(
 
   if (apiDoc.metadata?.shortNames && apiDoc.metadata.shortNames.length > 0) {
     const shortNameNodes: Array<PhrasingContent> = [
-      strong([text("Short Names:")]),
+      strong([text("Short names:")]),
       text(" "),
     ];
 
@@ -313,23 +359,26 @@ function addFieldSection(
     children.push(...parsed.children);
   }
 
+  // Create a unified list with all field information
+  const fieldInfoList: Array<Array<PhrasingContent | RootContent>> = [];
+
   // Add basic field information
-  addBasicFieldInfo(children, field);
+  addBasicFieldInfoToList(fieldInfoList, field);
 
-  // Add constraints section (now includes validation)
-  addConstraintsSection(children, field, footnotes);
+  // Add constraints as nested list items
+  addConstraintsToList(fieldInfoList, field, footnotes);
 
-  // Add examples section
-  addExamplesSection(children, field);
+  // Add examples as nested list items
+  addExamplesToList(fieldInfoList, field);
+
+  children.push(complexBulletList(fieldInfoList));
 }
 
 // Field detail functions (Mid-level abstraction)
-function addBasicFieldInfo(
-  children: Array<RootContent>,
+function addBasicFieldInfoToList(
+  fieldInfoList: Array<Array<PhrasingContent | RootContent>>,
   field: FieldDocumentation
 ): void {
-  const basicInfo: Array<Array<PhrasingContent>> = [];
-
   // Type with format
   const typeNodes: Array<PhrasingContent> = [
     strong([text("Type:")]),
@@ -339,25 +388,25 @@ function addBasicFieldInfo(
   if (field.format) {
     typeNodes.push(text(" ("), inlineCode(field.format), text(")"));
   }
-  basicInfo.push(typeNodes);
+  fieldInfoList.push(typeNodes);
 
   // Required/Optional
-  basicInfo.push([strong([text(field.required ? "Required" : "Optional")])]);
+  fieldInfoList.push([
+    strong([text(field.required ? "Required" : "Optional")]),
+  ]);
 
   // Default value
   if (field.default !== undefined) {
-    basicInfo.push([
+    fieldInfoList.push([
       strong([text("Default:")]),
       text(" "),
       inlineCode(JSON.stringify(field.default)),
     ]);
   }
-
-  children.push(bulletList(basicInfo));
 }
 
-function addConstraintsSection(
-  children: Array<RootContent>,
+function addConstraintsToList(
+  fieldInfoList: Array<Array<PhrasingContent | RootContent>>,
   field: FieldDocumentation,
   footnotes?: Map<string, string>
 ): void {
@@ -373,8 +422,12 @@ function addConstraintsSection(
   addOtherConstraints(constraints, field);
 
   if (constraints.length > 0) {
-    children.push(paragraph([strong([text("Constraints")])]));
-    children.push(complexBulletList(constraints));
+    // Create a list item with "Constraints" label and nested list
+    const constraintItem: Array<PhrasingContent | RootContent> = [
+      strong([text("Constraints")]),
+      complexBulletList(constraints),
+    ];
+    fieldInfoList.push(constraintItem);
   }
 }
 
@@ -412,12 +465,12 @@ function addNumericConstraints(
     property: keyof FieldDocumentation;
     label: string;
   }> = [
-    { property: "minLength", label: "Min Length:" },
-    { property: "maxLength", label: "Max Length:" },
+    { property: "minLength", label: "Min length:" },
+    { property: "maxLength", label: "Max length:" },
     { property: "minimum", label: "Minimum:" },
     { property: "maximum", label: "Maximum:" },
-    { property: "minItems", label: "Min Items:" },
-    { property: "maxItems", label: "Max Items:" },
+    { property: "minItems", label: "Min items:" },
+    { property: "maxItems", label: "Max items:" },
   ];
 
   for (const { property, label } of numericConstraints) {
@@ -437,13 +490,12 @@ function addOtherConstraints(
   field: FieldDocumentation
 ): void {
   if (field.uniqueItems) {
-    constraints.push([strong([text("Unique Items:")]), text(" Yes")]);
+    constraints.push([strong([text("Unique items:")]), text(" Yes")]);
   }
 
   if (field.pattern) {
     constraints.push([
       strong([text("Pattern:")]),
-      text(" "),
       codeBlock(field.pattern, "regex"),
     ]);
   }
@@ -451,7 +503,7 @@ function addOtherConstraints(
   // Add enum values
   if (field.enum && field.enum.length > 0) {
     const enumNodes: Array<PhrasingContent> = [
-      strong([text("Allowed Values:")]),
+      strong([text("Allowed values:")]),
       text(" "),
     ];
     field.enum.forEach((value, index) => {
@@ -481,12 +533,13 @@ function addOtherConstraints(
   }
 }
 
-function addExamplesSection(
-  children: Array<RootContent>,
+function addExamplesToList(
+  fieldInfoList: Array<Array<PhrasingContent | RootContent>>,
   field: FieldDocumentation
 ): void {
   if (field.examples.length > 0) {
-    children.push(paragraph([strong([text("Example")])]));
+    // Create code blocks for each example
+    const exampleContent: Array<RootContent> = [];
 
     for (const example of field.examples) {
       const yamlString = yamlDump(example, {
@@ -496,8 +549,15 @@ function addExamplesSection(
         quotingType: '"', // Use double quotes
         forceQuotes: false, // Only quote when necessary
       }).trim();
-      children.push(codeBlock(yamlString, "yaml"));
+      exampleContent.push(codeBlock(yamlString, "yaml"));
     }
+
+    // Create a list item with "Example" label and code blocks
+    const exampleItem: Array<PhrasingContent | RootContent> = [
+      strong([text("Example")]),
+      ...exampleContent,
+    ];
+    fieldInfoList.push(exampleItem);
   }
 }
 
@@ -552,8 +612,8 @@ function complexBulletList(
     const blockContent: Array<RootContent> = [];
 
     for (const element of item) {
-      if (element.type === "code") {
-        // Code blocks are block content
+      if (element.type === "code" || element.type === "list") {
+        // Code blocks and lists are block content
         blockContent.push(element);
       } else {
         // Everything else is inline
@@ -588,7 +648,7 @@ function renderQuickReferenceTable(
   };
 
   // Create header row with presentation concerns handled here
-  const headers = ["Field Path", "Type", "Required", "Description"];
+  const headers = ["Field path", "Type", "Required", "Description"];
   const headerRow: MdastTableRow = {
     type: "tableRow",
     children: headers.map(

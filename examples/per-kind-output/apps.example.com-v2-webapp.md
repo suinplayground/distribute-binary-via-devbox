@@ -2,14 +2,14 @@
 
 WebApp represents a web application deployment
 
-- **API Version:** `apps.example.com/v2`
+- **API version:** `apps.example.com/v2`
 - **Scope:** Namespaced
 - **Plural:** `webapps`
 - **Singular:** `webapp`
 
 ## Quick Reference
 
-| Field Path                  | Type       | Required | Description                              |
+| Field path                  | Type       | Required | Description                              |
 | --------------------------- | ---------- | -------- | ---------------------------------------- |
 | `spec.image`                | `string`   | ✓        | Container image for the web application  |
 | `spec.replicas`             | `integer`  | ✓        | Number of replicas to run                |
@@ -34,20 +34,15 @@ Container image for the web application
 
 - **Type:** `string`
 - **Required**
-
-**Constraints**
-
-- **Pattern:**&#x20;
-
-  ```regex
-  ^[a-z0-9]+([\._-][a-z0-9]+)*(/[a-z0-9]+([\._-][a-z0-9]+)*)*(:[\.\w][\w\.-]{0,127})?(@sha256:[a-fA-F0-9]{64})?$
+- **Constraints**
+  - **Pattern:**
+    ```regex
+    ^[a-z0-9]+([\._-][a-z0-9]+)*(/[a-z0-9]+([\._-][a-z0-9]+)*)*(:[\.\w][\w\.-]{0,127})?(@sha256:[a-fA-F0-9]{64})?$
+    ```
+- **Example**
+  ```yaml
+  myapp:v1.2.3
   ```
-
-**Example**
-
-```yaml
-myapp:v1.2.3
-```
 
 ### `spec.replicas`
 
@@ -56,16 +51,13 @@ Number of replicas to run
 - **Type:** `integer`
 - **Required**
 - **Default:** `3`
-
-**Constraints**
-
-- **Minimum:** `1`
-- **Maximum:** `100`
-- **Validation:** Replicas must be at least 1
-
-  ```cel
-  self >= 1
-  ```
+- **Constraints**
+  - **Minimum:** `1`
+  - **Maximum:** `100`
+  - **Validation:** Replicas must be at least 1
+    ```cel
+    self >= 1
+    ```
 
 ### `spec.port`
 
@@ -74,11 +66,9 @@ Port the application listens on
 - **Type:** `integer`
 - **Optional**
 - **Default:** `8080`
-
-**Constraints**
-
-- **Minimum:** `1`
-- **Maximum:** `65535`
+- **Constraints**
+  - **Minimum:** `1`
+  - **Maximum:** `65535`
 
 ### `spec.env`
 
@@ -86,10 +76,8 @@ Environment variables to set
 
 - **Type:** `object[]`
 - **Optional**
-
-**Constraints**
-
-- **Max Items:** `50`
+- **Constraints**
+  - **Max items:** `50`
 
 ### `spec.env.name`
 
@@ -97,14 +85,11 @@ Name of the environment variable
 
 - **Type:** `string`
 - **Required**
-
-**Constraints**
-
-- **Pattern:**&#x20;
-
-  ```regex
-  ^[A-Z_][A-Z0-9_]*$
-  ```
+- **Constraints**
+  - **Pattern:**
+    ```regex
+    ^[A-Z_][A-Z0-9_]*$
+    ```
 
 ### `spec.env.value`
 
@@ -135,11 +120,9 @@ Interval between health checks
 - **Type:** `integer`
 - **Optional**
 - **Default:** `30`
-
-**Constraints**
-
-- **Minimum:** `5`
-- **Maximum:** `300`
+- **Constraints**
+  - **Minimum:** `5`
+  - **Maximum:** `300`
 
 ### `spec.healthCheck.timeoutSeconds`
 
@@ -148,11 +131,9 @@ Timeout for health checks
 - **Type:** `integer`
 - **Optional**
 - **Default:** `10`
-
-**Constraints**
-
-- **Minimum:** `1`
-- **Maximum:** `60`
+- **Constraints**
+  - **Minimum:** `1`
+  - **Maximum:** `60`
 
 ### `spec.autoscaling`
 
@@ -160,14 +141,11 @@ Autoscaling configuration
 
 - **Type:** `object`
 - **Optional**
-
-**Constraints**
-
-- **Validation:** minReplicas must be less than or equal to maxReplicas
-
-  ```cel
-  !self.enabled || self.minReplicas <= self.maxReplicas
-  ```
+- **Constraints**
+  - **Validation:** minReplicas must be less than or equal to maxReplicas
+    ```cel
+    !self.enabled || self.minReplicas <= self.maxReplicas
+    ```
 
 ### `spec.autoscaling.enabled`
 
@@ -184,10 +162,8 @@ Minimum number of replicas
 - **Type:** `integer`
 - **Optional**
 - **Default:** `2`
-
-**Constraints**
-
-- **Minimum:** `1`
+- **Constraints**
+  - **Minimum:** `1`
 
 ### `spec.autoscaling.maxReplicas`
 
@@ -196,11 +172,9 @@ Maximum number of replicas
 - **Type:** `integer`
 - **Optional**
 - **Default:** `10`
-
-**Constraints**
-
-- **Minimum:** `1`
-- **Maximum:** `1000`
+- **Constraints**
+  - **Minimum:** `1`
+  - **Maximum:** `1000`
 
 ### `spec.autoscaling.targetCPUUtilization`
 
@@ -209,11 +183,9 @@ Target CPU utilization percentage
 - **Type:** `integer`
 - **Optional**
 - **Default:** `80`
-
-**Constraints**
-
-- **Minimum:** `1`
-- **Maximum:** `100`
+- **Constraints**
+  - **Minimum:** `1`
+  - **Maximum:** `100`
 
 ### `spec.ingress`
 
@@ -236,20 +208,15 @@ Hostname for the ingress
 
 - **Type:** `string`
 - **Optional**
-
-**Constraints**
-
-- **Pattern:**&#x20;
-
-  ```regex
-  ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
+- **Constraints**
+  - **Pattern:**
+    ```regex
+    ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
+    ```
+- **Example**
+  ```yaml
+  myapp.example.com
   ```
-
-**Example**
-
-```yaml
-myapp.example.com
-```
 
 ### `spec.ingress.tls`
 
@@ -274,10 +241,8 @@ Number of available replicas
 
 - **Type:** `integer`
 - **Optional**
-
-**Constraints**
-
-- **Minimum:** `0`
+- **Constraints**
+  - **Minimum:** `0`
 
 ### `status.url`
 
@@ -285,12 +250,10 @@ URL where the application is accessible
 
 - **Type:** `string`
 - **Optional**
-
-**Example**
-
-```yaml
-https://myapp.example.com
-```
+- **Example**
+  ```yaml
+  https://myapp.example.com
+  ```
 
 ### `status.lastDeploymentTime`
 
@@ -312,7 +275,5 @@ Overall health status of the application
 
 - **Type:** `string`
 - **Optional**
-
-**Constraints**
-
-- **Allowed Values:** `"Healthy"`, `"Degraded"`, `"Unhealthy"`, `"Unknown"`
+- **Constraints**
+  - **Allowed values:** `"Healthy"`, `"Degraded"`, `"Unhealthy"`, `"Unknown"`

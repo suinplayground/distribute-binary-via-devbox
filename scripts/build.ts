@@ -155,9 +155,10 @@ const main = defineCommand({
       process.exit(1);
     }
 
-    // Build all platforms
-    const buildPromises = platformsToBuild.map(async (platform) => {
+    // Build all platforms sequentially
+    for (const platform of platformsToBuild) {
       try {
+        // biome-ignore lint/nursery/noAwaitInLoop: we choose sequential build for simplicity and stability
         await buildPlatform(platform, version, { binariesOnly, archivesOnly });
       } catch (error) {
         process.stderr.write(
@@ -165,9 +166,7 @@ const main = defineCommand({
         );
         process.exit(1);
       }
-    });
-
-    await Promise.all(buildPromises);
+    }
 
     process.stdout.write("\n✅ Build completed successfully!\n");
 

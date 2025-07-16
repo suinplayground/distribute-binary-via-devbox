@@ -46,6 +46,8 @@ jobs:
       # 3. Calculate hashes and update flake.nix
       - name: Update flake.nix with hashes
         run: devbox run bun scripts/update-flake.ts --version "$VERSION" --dist-dir dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # 4. Commit flake.nix changes
       - name: Commit flake.nix updates

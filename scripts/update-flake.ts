@@ -39,10 +39,26 @@ async function calculateHashFromLocalFile(filePath: string): Promise<string> {
 
 async function fetchGitHubRepoInfo(): Promise<GitHubRepoInfo> {
   try {
-    const result = await $`gh repo view --json owner --json name`.text();
-    return JSON.parse(result);
+    const result = await $`gh repo view --json owner,name`;
+    return JSON.parse(result.stdout.toString());
   } catch (error) {
-    process.stderr.write(`Error fetching GitHub repo info: ${error}\n`);
+    process.stderr.write("Error fetching GitHub repo info:\n");
+    if (error instanceof Error && "exitCode" in error) {
+      const shellError = error as {
+        exitCode?: number;
+        stdout?: Buffer;
+        stderr?: Buffer;
+      };
+      process.stderr.write(`Exit code: ${shellError.exitCode || "unknown"}\n`);
+      process.stderr.write(
+        `Stdout: ${shellError.stdout?.toString() || "(empty)"}\n`
+      );
+      process.stderr.write(
+        `Stderr: ${shellError.stderr?.toString() || "(empty)"}\n`
+      );
+    } else {
+      process.stderr.write(`Error: ${String(error)}\n`);
+    }
     throw error;
   }
 }

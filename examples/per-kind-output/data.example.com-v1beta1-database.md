@@ -4,12 +4,18 @@ Database represents a **managed database instance** with automated backups and h
 
 ## Supported Engines
 
-\| Engine | Versions | Features | |--------|----------|----------| | PostgreSQL | 13, 14, 15 | Full SQL support, JSONB, Extensions | | MySQL | 5.7, 8.0 | InnoDB, Replication |
+| Engine     | Versions   | Features                            |
+| ---------- | ---------- | ----------------------------------- |
+| PostgreSQL | 13, 14, 15 | Full SQL support, JSONB, Extensions |
+| MySQL      | 5.7, 8.0   | InnoDB, Replication                 |
 
 ### Important Configuration
 
-1. **Storage**: Always use SSD-backed storage classes for production 2. **Backups**: Enable automated backups with at least 7-day retention 3. **Security**: Configure TLS and restrict access via `allowedIPs`
-   For detailed configuration examples, see the [Database Guide](https://docs.example.com/databases).
+1. **Storage**: Always use SSD-backed storage classes for production
+2. **Backups**: Enable automated backups with at least 7-day retention
+3. **Security**: Configure TLS and restrict access via `allowedIPs`
+
+For detailed configuration examples, see the [Database Guide](https://docs.example.com/databases).
 
 ***
 

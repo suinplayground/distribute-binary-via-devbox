@@ -156,9 +156,15 @@ spec:
       expect(result).toContain("   - 15.x (recommended)");
       expect(result).toContain("2. **MySQL** versions:");
 
-      // Check table
-      expect(result).toContain("| Parameter | Type | Default | Description |");
-      expect(result).toContain("| `replicas` | int | 3 |");
+      // Check table - exact formatting might vary due to table alignment
+      expect(result).toContain("| Parameter");
+      expect(result).toContain("| Type");
+      expect(result).toContain("| Default");
+      expect(result).toContain("| Description");
+      expect(result).toContain("| `replicas`");
+      expect(result).toContain("| int");
+      expect(result).toContain("| 3");
+      expect(result).toContain("| Number of database replicas |");
 
       // Check horizontal rule
       expect(result).toContain("---");
@@ -634,6 +640,168 @@ spec:
       );
       expect(result).toContain(
         "- **Example**\n  ```yaml\n  key: value\n  nested:\n    deep: true\n  ```"
+      );
+    });
+
+    test("renders field description with Markdown formatting", () => {
+      const markdownDescription = `This field configures the **database connection**.
+
+Supported database types:
+- \`postgres\` - PostgreSQL database
+- \`mysql\` - MySQL database
+- \`mongodb\` - MongoDB database
+
+> **Note**: For production environments, always use \`postgres\` or \`mysql\`.
+
+See [configuration guide](https://example.com/db-config) for details.`;
+
+      const apiDoc = createAPIDoc("DatabaseResource", [
+        createField("spec.database", "object", true, markdownDescription),
+      ]);
+
+      const result = renderAPIDocumentation(apiDoc);
+
+      // Check that field description preserves Markdown formatting
+      expect(result).toContain("### `spec.database`");
+      expect(result).toContain("**database connection**"); // Bold text
+      expect(result).toContain("- `postgres` - PostgreSQL database"); // List with inline code
+      expect(result).toContain("> **Note**: For production environments"); // Blockquote with bold
+      expect(result).toContain(
+        "[configuration guide](https://example.com/db-config)"
+      ); // Link
+    });
+
+    test("renders field description with inline Markdown elements", () => {
+      const apiDoc = createAPIDoc("ServiceResource", [
+        createField(
+          "spec.timeout",
+          "integer",
+          false,
+          "Timeout in seconds. Must be between `30` and `300`. See *Important Notes* below."
+        ),
+        createField(
+          "spec.retryPolicy",
+          "object",
+          false,
+          "Retry policy configuration. Set `maxRetries` to **0** to disable retries."
+        ),
+      ]);
+
+      const result = renderAPIDocumentation(apiDoc);
+
+      // Check inline code in field descriptions
+      expect(result).toContain("Must be between `30` and `300`");
+      expect(result).toContain("*Important Notes*");
+
+      // Check bold text in field descriptions
+      expect(result).toContain("Set `maxRetries` to **0** to disable");
+    });
+
+    test("renders field description with code blocks", () => {
+      const descriptionWithCodeBlock = `Configuration for the service endpoint.
+
+Example configuration:
+
+\`\`\`yaml
+endpoint:
+  host: api.example.com
+  port: 443
+  protocol: https
+\`\`\`
+
+The \`protocol\` field accepts either \`http\` or \`https\`.`;
+
+      const apiDoc = createAPIDoc("ServiceResource", [
+        createField("spec.endpoint", "object", true, descriptionWithCodeBlock),
+      ]);
+
+      const result = renderAPIDocumentation(apiDoc);
+
+      // Check that code block is preserved
+      expect(result).toContain("```yaml");
+      expect(result).toContain("host: api.example.com");
+      expect(result).toContain("protocol: https");
+      expect(result).toContain("```");
+
+      // Check inline code after code block
+      expect(result).toContain(
+        "The `protocol` field accepts either `http` or `https`"
+      );
+    });
+
+    test("renders field description with complex nested Markdown", () => {
+      const complexDescription = `Advanced configuration for **high availability** setup.
+
+## Requirements
+
+1. **Minimum nodes**: 3
+2. **Recommended nodes**: 5 or more
+3. **Maximum nodes**: 10
+
+### Network Configuration
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| \`vip\` | Yes | - | Virtual IP address |
+| \`subnet\` | Yes | - | Subnet CIDR |
+| \`gateway\` | No | Auto | Gateway IP |
+
+---
+
+**Warning**: Changing these settings requires a cluster restart.
+
+For more details, refer to the [HA Guide](https://docs.example.com/ha).`;
+
+      const apiDoc = createAPIDoc("ClusterResource", [
+        createField(
+          "spec.highAvailability",
+          "object",
+          false,
+          complexDescription
+        ),
+      ]);
+
+      const result = renderAPIDocumentation(apiDoc);
+
+      // Check all Markdown elements are preserved
+      expect(result).toContain("## Requirements");
+      expect(result).toContain("1. **Minimum nodes**: 3");
+      expect(result).toContain("### Network Configuration");
+      // Check table content - formatting might vary
+      expect(result).toContain("| Parameter");
+      expect(result).toContain("| Required");
+      expect(result).toContain("| Default");
+      expect(result).toContain("| Description");
+      expect(result).toContain("| `vip`");
+      expect(result).toContain("| Yes");
+      expect(result).toContain("| Virtual IP address |");
+      expect(result).toContain("---"); // Horizontal rule
+      expect(result).toContain("**Warning**: Changing these settings");
+      expect(result).toContain("[HA Guide](https://docs.example.com/ha)");
+    });
+
+    test("renders field description with proper spacing between Markdown elements", () => {
+      const descriptionWithSpacing = `Database configuration options.
+
+Supports the following engines:
+
+- PostgreSQL 14+
+- MySQL 8.0+
+
+Default configuration uses PostgreSQL.`;
+
+      const apiDoc = createAPIDoc("DatabaseResource", [
+        createField("spec.database", "object", true, descriptionWithSpacing),
+      ]);
+
+      const result = renderAPIDocumentation(apiDoc);
+
+      // Check that paragraph breaks are preserved
+      expect(result).toContain(
+        "Database configuration options.\n\nSupports the following engines:"
+      );
+      expect(result).toContain(
+        "- MySQL 8.0+\n\nDefault configuration uses PostgreSQL."
       );
     });
   });

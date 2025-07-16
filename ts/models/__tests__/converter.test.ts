@@ -341,43 +341,6 @@ describe("converter", () => {
       expect(result.apiDocs[1]?.kind).toBe("Resource2");
     });
 
-    test("normalizes description with newlines", () => {
-      const crd = createCRD("TestResource", "test.io", "v1", {
-        type: "object",
-        properties: {
-          field: {
-            type: "string",
-            description: "Single\nnewline becomes space",
-          },
-          multilineField: {
-            type: "string",
-            description: "Multiple\n\nnewlines are\n\npreserved",
-          },
-        },
-      });
-
-      const result = convertCRDsToDocuments([crd], []);
-      expect(result.apiDocs).toHaveLength(1);
-      const apiDoc = result.apiDocs[0];
-      if (!apiDoc) {
-        throw new Error("Expected apiDoc to exist");
-      }
-
-      // The converter extracts both fields
-      expect(apiDoc.specFields).toHaveLength(2);
-
-      const field = apiDoc.specFields.find((f) => f.fieldPath === "spec.field");
-      expect(field?.description).toBe("Single newline becomes space");
-
-      const multilineField = apiDoc.specFields.find(
-        (f) => f.fieldPath === "spec.multilineField"
-      );
-      // After normalization: single newlines become spaces, double newlines become single newline + space
-      expect(multilineField?.description).toBe(
-        "Multiple\n newlines are\n preserved"
-      );
-    });
-
     test("handles fields with examples", () => {
       const crd = createCRD("TestResource", "test.io", "v1", {
         type: "object",

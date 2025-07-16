@@ -20,8 +20,9 @@ import type {
 } from "mdast";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { gfmFootnoteToMarkdown } from "mdast-util-gfm-footnote";
-import { gfmTableToMarkdown } from "mdast-util-gfm-table";
+import { gfmTableFromMarkdown, gfmTableToMarkdown } from "mdast-util-gfm-table";
 import { toMarkdown } from "mdast-util-to-markdown";
+import { gfmTable } from "micromark-extension-gfm-table";
 import { u } from "unist-builder";
 import type {
   APIDocumentation,
@@ -195,7 +196,10 @@ function buildDocumentASTWithFootnotes(
 
   // API description (right after title)
   if (apiDoc.description) {
-    const parsed = fromMarkdown(apiDoc.description);
+    const parsed = fromMarkdown(apiDoc.description, {
+      extensions: [gfmTable()],
+      mdastExtensions: [gfmTableFromMarkdown()],
+    });
     children.push(...parsed.children);
   }
 
@@ -361,7 +365,10 @@ function addFieldSection(
 
   // Description paragraph(s) - parse as markdown since it comes from user input
   if (field.description) {
-    const parsed = fromMarkdown(field.description);
+    const parsed = fromMarkdown(field.description, {
+      extensions: [gfmTable()],
+      mdastExtensions: [gfmTableFromMarkdown()],
+    });
     children.push(...parsed.children);
   }
 

@@ -85,6 +85,14 @@ spec:
                 type: string
                 description: "Publisher of the book"
                 example: "O'Reilly Media"
+              summary:
+                type: string
+                description: |
+                  Brief summary of the book's content. This summary should capture the main themes,
+                  topics, and key takeaways from the book. It helps readers quickly understand what
+                  the book is about before deciding whether to borrow or purchase it for reading.
+                maxLength: 1000
+                example: "A comprehensive guide to Kubernetes that covers core concepts, architecture, and practical deployment strategies."
               language:
                 type: string
                 description: "Language of the book"
@@ -110,6 +118,54 @@ spec:
                   - Biography
                 uniqueItems: true
                 maxItems: 5
+              edition:
+                type: object
+                description: |
+                  Edition information for the book with **special handling** for rare editions.
+                  
+                  ## Edition Types
+                  
+                  - `first` - First edition (most valuable)
+                  - `revised` - Revised edition with updates
+                  - `anniversary` - Special anniversary edition
+                  - `collector` - Limited collector's edition
+                  
+                  ### Handling Requirements
+                  
+                  | Edition Type | Storage | Lending | Insurance |
+                  |-------------|---------|---------|-----------|
+                  | `first` | Climate-controlled | Restricted | Required |
+                  | `collector` | Climate-controlled | No | Required |
+                  | `anniversary` | Standard | Yes | Optional |
+                  | `revised` | Standard | Yes | Not required |
+                  
+                  > **Warning**: First editions and collector's editions require approval from the head librarian before any lending.
+                  
+                  For more information, see our [rare books policy](https://library.example.com/policies/rare-books).
+                properties:
+                  type:
+                    type: string
+                    description: "Type of edition"
+                    enum:
+                    - first
+                    - revised
+                    - anniversary
+                    - collector
+                    - standard
+                    default: standard
+                  year:
+                    type: integer
+                    description: "Year this edition was published"
+                    minimum: 1450
+                    maximum: 2100
+                  printRun:
+                    type: integer
+                    description: "Number of copies in this print run (for limited editions)"
+                    minimum: 1
+                  specialNotes:
+                    type: string
+                    description: "Any special notes about this edition"
+                    maxLength: 500
           status:
             type: object
             description: "BookStatus defines the observed state of a Book"

@@ -70,7 +70,7 @@ function convertCRDToAPIDoc(crd: CustomResourceDefinition): APIDocumentation {
   };
 
   if (schema.description) {
-    apiDoc.description = normalizeDescription(schema.description);
+    apiDoc.description = schema.description;
   }
 
   return apiDoc;
@@ -244,7 +244,7 @@ function assignFieldProperties(
   fieldSchema: OpenAPIV3Schema
 ): void {
   if (fieldSchema.description) {
-    fieldInfo.description = normalizeDescription(fieldSchema.description);
+    fieldInfo.description = fieldSchema.description;
   }
   if (fieldSchema["x-kubernetes-validations"]) {
     fieldInfo.validation = fieldSchema["x-kubernetes-validations"];
@@ -312,14 +312,4 @@ function getFieldType(schema: OpenAPIV3Schema): string {
   }
 
   return "any";
-}
-
-/**
- * Normalize newlines in description text:
- * - Single newlines become spaces (removes line wrapping artifacts)
- * - Multiple newlines are preserved (maintains intentional paragraph breaks)
- */
-function normalizeDescription(description: string): string {
-  // Replace single newlines with spaces, but preserve multiple newlines
-  return description.replace(/\n(?!\n)/g, " ").trim();
 }

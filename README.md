@@ -21,13 +21,49 @@ karg --input "./crds/*.yaml" --output-directory ./docs
 ### Install
 
 Using [Devbox](https://www.jetify.com/devbox):
+
+<!-- begin:devbox_install - DON'T EDIT: This block will be replaced by CI -->
 ```bash
+devbox add github:appthrust/karg/v0.6.0#karg
+```
+<!-- end:devbox_install -->
+
+Using [Nix](https://nixos.org/):
+
+<!-- begin:nix_install - DON'T EDIT: This block will be replaced by CI -->
+```bash
+nix run github:appthrust/karg/v0.6.0#karg -- --help
+```
+<!-- end:nix_install -->
+
+#### Important: Version Pinning and Updates
+
+We strongly recommend installing with a specific version tag (e.g., `/v0.6.0`) as shown above. This ensures:
+- ✅ Reproducible installations
+- ✅ Consistent behavior across environments
+- ✅ Explicit version control
+
+**Note**: `devbox update` does not work with GitHub Flake packages. This is due to the fundamental design of how Devbox integrates with Nix - GitHub Flakes are not registered in Nix profiles and thus cannot be updated via `nix profile upgrade`. This is a known limitation. 
+
+If you installed without a version tag:
+```bash
+# ❌ Not recommended - will pin to a specific commit
 devbox add github:appthrust/karg#karg
 ```
 
-Using [Nix](https://nixos.org/):
+To update, you must manually reinstall:
 ```bash
-nix run github:appthrust/karg#karg -- --help
+# Remove the old version
+devbox rm github:appthrust/karg#karg
+
+# Clean the cache
+rm -rf .devbox
+
+# Install the latest version with a tag
+devbox add github:appthrust/karg/v0.7.0#karg
+
+# Restart your shell
+exit && devbox shell
 ```
 
 ### Generate Documentation
@@ -175,38 +211,9 @@ Examples:
 Add to your project's documentation pipeline:
 
 ```bash
-# Using Devbox
-devbox add github:appthrust/karg#karg
+# Using Devbox (recommended to use version tags)
+devbox add github:appthrust/karg/v0.6.0#karg
 
-# Using Nix  
-nix profile install github:appthrust/karg#karg
+# Using Nix (recommended to use version tags) 
+nix profile install github:appthrust/karg/v0.6.0#karg
 ```
-
-### For Development
-
-Clone and run from source:
-
-```bash
-git clone https://github.com/appthrust/karg.git
-cd karg
-bun install
-bun ts/cli/index.ts --help
-```
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-Key areas for contribution:
-- Additional output formats (HTML, OpenAPI)
-- More validation rule support
-- Improved formatting options
-- Bug fixes and performance improvements
-
-## License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
----
-
-Made with ❤️ for the Kubernetes community

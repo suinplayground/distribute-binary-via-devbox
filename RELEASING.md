@@ -27,7 +27,8 @@ We use a draft-based release workflow that ensures flake.nix contains correct ha
    - Upload binaries to the draft release
    - Calculate hashes from the built artifacts
    - Update `flake.nix` with the correct version and hashes
-   - Commit the updated `flake.nix`
+   - Update `README.md` with the correct version in installation examples
+   - Commit the updated `flake.nix` and `README.md`
    - Create and push the Git tag
    - Publish the release
 
@@ -57,21 +58,27 @@ If you need to release manually:
    bun scripts/update-flake.ts --version 0.1.0
    ```
 
-4. **Commit the changes**:
+4. **Update README.md**:
 
    ```bash
-   git add packaging/flake.nix
-   git commit -m "chore: update flake.nix for v0.1.0"
+   bun scripts/update-readme.ts --version 0.1.0
    ```
 
-5. **Create and push the tag**:
+5. **Commit the changes**:
+
+   ```bash
+   git add flake.nix README.md
+   git commit -m "chore: update flake.nix and README.md for v0.1.0"
+   ```
+
+6. **Create and push the tag**:
 
    ```bash
    git tag -a v0.1.0 -m "Release v0.1.0"
    git push origin main --tags
    ```
 
-6. **Update and publish the release**:
+7. **Update and publish the release**:
    ```bash
    gh release edit v0.1.0 --target "$(git rev-parse v0.1.0)" --draft=false
    ```

@@ -27,10 +27,11 @@ async function calculateHashFromLocalFile(filePath: string): Promise<string> {
   process.stdout.write(`Calculating hash for ${filePath}...\n`);
 
   try {
-    // Calculate SRI hash directly using nix hash
-    const sriHash =
-      await $`nix hash file --type sha256 --sri ${filePath}`.text();
-    return sriHash.trim();
+    // Calculate hex hash directly using nix hash
+    const hexHash =
+      await $`nix hash file --type sha256 --base16 ${filePath}`.text();
+    // Return with sha256: prefix for flake.nix
+    return `sha256:${hexHash.trim()}`;
   } catch (error) {
     process.stderr.write(`Error hashing ${filePath}: ${error}\n`);
     throw error;

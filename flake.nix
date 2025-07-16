@@ -18,16 +18,16 @@
         # Hashes for each platform (will be updated by CI)
         hashes = {
           "x86_64-linux" = {
-            hash = "sha256-c9Fp/MM162bUiYbcLtj+3wTN5Cwjji1CO4qiNXy8k3w="; #x86_64-linux - This line is replaced by CI
+            hash = "sha256:2a8e48515bfad4ab9cf54c9400e57074a6c7462ca32cda61429e8b59efbcdd1b"; #x86_64-linux - This line is replaced by CI
           };
           "aarch64-linux" = {
-            hash = "sha256-XNtC9HJL0mMxIyxeOTf7N/vx6RsYl8lT0hYbaXrR+cA="; #aarch64-linux - This line is replaced by CI
+            hash = "sha256:d137d024812dc85aa0a85b969a92c037005bd329622f8ac6f02b37cda4b12cdb"; #aarch64-linux - This line is replaced by CI
           };
           "x86_64-darwin" = {
-            hash = "sha256-PwADWP9GeOcZ6jG1pLVrwtq66TYmMqefxDCcU4fd/OM="; #x86_64-darwin - This line is replaced by CI
+            hash = "sha256:32b8f2ea57f3440736a7c1c23ce4959e04615ce4e110eb6bd5ec86b413dcc6e1"; #x86_64-darwin - This line is replaced by CI
           };
           "aarch64-darwin" = {
-            hash = "sha256-jyoOJpV18Yd5YdiR0YCmRxfEpoDpwQ6/QQJTb/NJyv4="; #aarch64-darwin - This line is replaced by CI
+            hash = "sha256:0cdf37c4a1447ee13746ef0a11d0f7b6261044617b477fb3371d3584a37a29d2"; #aarch64-darwin - This line is replaced by CI
           };
         };
         

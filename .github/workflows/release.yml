@@ -49,21 +49,25 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 4. Commit flake.nix changes
-      - name: Commit flake.nix updates
+      # 4. Update README.md with version
+      - name: Update README.md
+        run: devbox run bun scripts/update-readme.ts --version "$VERSION"
+
+      # 5. Commit flake.nix and README.md changes
+      - name: Commit updates
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add flake.nix
-          git commit -m "chore: update flake.nix for v$VERSION"
+          git add flake.nix README.md
+          git commit -m "chore: update flake.nix and README.md for v$VERSION"
 
-      # 5. Tag the commit and push
+      # 6. Tag the commit and push
       - name: Create and push tag
         run: |
           git tag -a "v$VERSION" -m "Release v$VERSION"
           git push origin HEAD:main --tags
 
-      # 6. Update draft release to point to the new commit and publish
+      # 7. Update draft release to point to the new commit and publish
       - name: Publish release
         run: |
           gh release edit "v$VERSION" --draft=false

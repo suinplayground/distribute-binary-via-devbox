@@ -24,7 +24,7 @@ Using [Devbox](https://www.jetify.com/devbox):
 
 <!-- begin:devbox_install - DON'T EDIT: This block will be replaced by CI -->
 ```bash
-devbox add github:suinplayground/distribute-binary-via-devbox/v0.10.0#karg
+devbox add github:suinplayground/distribute-binary-via-devbox/v0.11.0#karg
 ```
 <!-- end:devbox_install -->
 
@@ -32,7 +32,7 @@ Using [Nix](https://nixos.org/):
 
 <!-- begin:nix_install - DON'T EDIT: This block will be replaced by CI -->
 ```bash
-nix run github:suinplayground/distribute-binary-via-devbox/v0.10.0#karg -- --help
+nix run github:suinplayground/distribute-binary-via-devbox/v0.11.0#karg -- --help
 ```
 <!-- end:nix_install -->
 

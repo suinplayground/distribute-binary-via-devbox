@@ -11,23 +11,23 @@
       let
         pkgs = import nixpkgs { inherit system; };
         
-        version = "0.10.0"; #version - This line is replaced by CI
+        version = "0.11.0"; #version - This line is replaced by CI
         
         assetName = "karg-v${version}-${system}.tar.gz";
         
         # Hashes for each platform (will be updated by CI)
         hashes = {
           "x86_64-linux" = {
-            hash = "sha256:ba3d3cf6c6ae9b01323c1daa66d6faf5624a7e250f363a68e1fc91dc8ec36bde"; #x86_64-linux - This line is replaced by CI
+            hash = "sha256:357ba1e9f63077ae8ebe730e32f84f88f756a1b36d1cb0f3d152996026890a08"; #x86_64-linux - This line is replaced by CI
           };
           "aarch64-linux" = {
-            hash = "sha256:7d8c379467773e7d1d292995e3a76791a396bcd86af497fc704eac54afd86c50"; #aarch64-linux - This line is replaced by CI
+            hash = "sha256:4bee59b32cc6154799c67093a377c655818453d17170959aa0a5adeca74db7fe"; #aarch64-linux - This line is replaced by CI
           };
           "x86_64-darwin" = {
-            hash = "sha256:3904abb403a042e3351c2439b817b7a02a24e0f21f4a7f23824badebc714ebe8"; #x86_64-darwin - This line is replaced by CI
+            hash = "sha256:b1ca0ef1f74001fe4f0ccc052a8ba9c97cad036be46883652c6fc80f856c8959"; #x86_64-darwin - This line is replaced by CI
           };
           "aarch64-darwin" = {
-            hash = "sha256:1b170e0f61916a260e212ba9994acd4f01d33abdc1346e4bd2af63e60792ee26"; #aarch64-darwin - This line is replaced by CI
+            hash = "sha256:b415f26e6a7c82f8450909453b131d6482d26bfb4a51470e1b94f13a1782f594"; #aarch64-darwin - This line is replaced by CI
           };
         };
         
